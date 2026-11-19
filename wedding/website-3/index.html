@@ -7,9 +7,8 @@
 <meta name="description" content="Rajesh & Chinmayee — Nirbandha, Bahaghara and Reception, Odisha 2027">
 <meta name="theme-color" content="#3a0612">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/favicon.ico?v=4" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=4">
-<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=4">
+<link rel="icon" href="/favicon.ico?v=5" sizes="32x32">
+<link id="fav" rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1173,5 +1172,9 @@ history.scrollRestoration='manual';scrollTo(0,0);
 })();
 </script>
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));</script>
+<script>/* blinking heart in the browser tab */
+(function(){const l=document.getElementById('fav');if(!l)return;fetch('/favicon.svg?v=5').then(r=>r.text()).then(t=>{
+const on='data:image/svg+xml,'+encodeURIComponent(t),off='data:image/svg+xml,'+encodeURIComponent(t.replace('<svg ','<svg opacity=".35" '));
+let k=0;setInterval(()=>{k^=1;l.href=k?off:on},700)}).catch(()=>{})})();</script>
 </body>
 </html>
