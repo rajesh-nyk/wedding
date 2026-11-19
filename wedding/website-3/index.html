@@ -35,7 +35,7 @@ html{overscroll-behavior-y:none}
 html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 img,svg,canvas{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 ::selection{background:transparent}
-html,body{overflow-x:clip;background:var(--wine);color:var(--ivory)}
+html,body{overflow-x:clip;background:#000;color:var(--ivory)}
 body{font-family:var(--body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body.loading{overflow:hidden;height:100%}
 img{display:block;max-width:100%;-webkit-user-drag:none;user-select:none}
@@ -1112,7 +1112,7 @@ function rwUpdate(y){const S=RW.S;if(!S.length)return;
 measure();rwBuild();addEventListener('resize',()=>{measure();rwBuild();scenes.forEach(s=>s.p=-1)});
 addEventListener('load',()=>{measure();rwBuild()});
 
-const blessSec=$('#bless'),prog=$('#prog'),evh=$('#events'),bans=$$('#events .ban');
+const skySec=$('#sky'),themeMeta=document.querySelector('meta[name=theme-color]'),blessSec=$('#bless'),prog=$('#prog'),evh=$('#events'),bans=$$('#events .ban');
 /* cursor + smooth wheel scroll (desktop) */
 const fine=matchMedia('(pointer:fine)').matches;
 const cur=$('#cur'),cdot=$('#cur .dot'),cring=$('#cur .ring');let cx=-100,cy=-100,rx=-100,ry=-100,rot=0,cvel=0;
@@ -1134,6 +1134,11 @@ const HR={};let tPrev=0;function loop(t){const dt=Math.min(100,t-(tPrev||t));tPr
   cdot.style.transform=`translate3d(${RW.dx.toFixed(2)}px,${RW.dy.toFixed(2)}px,0)`;
   cring.style.transform=`translate3d(${rx.toFixed(2)}px,${ry.toFixed(2)}px,0) rotate(${(RW.ca||0).toFixed(1)}deg) scale(${(1+RW.cs*.35).toFixed(3)},${(1-RW.cs*.22).toFixed(3)})`;}
  const y=scrollY,vh=innerHeight;
+ // paint the strip under the phone's browser bar in the colour of whatever section is at the bottom of the screen
+ {let c='#000';
+  const hr=hero.getBoundingClientRect(),sr=skySec.getBoundingClientRect();
+  if(hr.bottom>vh-2)c='#1c0308';else if(sr.top<vh&&sr.bottom>vh-2)c='#0a0418';else if(sr.bottom<=vh)c='#07051a';
+  if(c!==loop._bg){loop._bg=c;document.documentElement.style.background=c;document.body.style.background=c;themeMeta&&themeMeta.setAttribute('content',c)}}
  if(y<(G.bless?G.bless.top+vh:1e9)){HR.w=hw.getBoundingClientRect();HR.l=hnLines.map(e=>e.getBoundingClientRect())}
  rwUpdate(y);
  prog.style.transform=`scaleX(${y/Math.max(1,document.documentElement.scrollHeight-vh)})`;
