@@ -1,0 +1,16 @@
+{
+  "name": "Rajesh & Chinmayee — Wedding",
+  "short_name": "R ✦ C Wedding",
+  "description": "Rajesh & Chinmayee's Odia wedding — Nirbandha, Bahaghara and Reception, 2027",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a0308",
+  "theme_color": "#3a0612",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

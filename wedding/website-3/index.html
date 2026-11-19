@@ -2,10 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rajesh & Chinmayee — Website 3</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rajesh & Chinmayee — Wedding</title>
 <meta name="description" content="Rajesh & Chinmayee — Nirbandha, Bahaghara and Reception, Odisha 2027">
 <meta name="theme-color" content="#3a0612">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="R ✦ C">
+<meta property="og:title" content="Rajesh & Chinmayee — Wedding">
+<meta property="og:description" content="Nirbandha · Bahaghara · Reception — Odisha 2027">
+<meta property="og:image" content="https://blessed4life.in/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=Yeseva+One&family=Jost:wght@300;400;500;600&family=Noto+Serif+Oriya:wght@400;600;700&display=swap" rel="stylesheet">
@@ -20,6 +30,8 @@
 }
 @supports (height:100svh){:root{--svh:1svh}}
 *{box-sizing:border-box;margin:0;padding:0}
+html{overscroll-behavior-y:none}
+@media (display-mode:standalone){#bar{padding-top:calc(32px + env(safe-area-inset-top))!important}#prog{top:env(safe-area-inset-top)}}
 html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 img,svg,canvas{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 ::selection{background:transparent}
@@ -1153,5 +1165,6 @@ history.scrollRestoration='manual';scrollTo(0,0);
  requestAnimationFrame(step)})();
 })();
 </script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));</script>
 </body>
 </html>
