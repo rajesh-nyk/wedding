@@ -1,0 +1,9 @@
+{
+  // Cloudflare deploy settings: serve Website 3 as a static site
+  "name": "wedding",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./wedding/website-3",
+    "not_found_handling": "single-page-application"
+  }
+}
