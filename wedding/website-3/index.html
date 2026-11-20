@@ -112,7 +112,7 @@ body.ready .fade-in{opacity:1;transform:none}
 #hero .flash{position:absolute;inset:0;z-index:6;background:radial-gradient(70% 55% at 50% 52%,rgba(255,110,20,.28) 0,rgba(180,50,0,.12) 40%,transparent 70%),radial-gradient(120% 70% at 50% 120%,rgba(255,80,0,.32),transparent 60%),radial-gradient(circle at 50% 40%,#ffd27a 0,#ff7a10 14%,#5a1400 38%,#000 70%);opacity:0;pointer-events:none}
 
 /* ---------- BLESSING ---------- */
-#bless{height:calc(var(--svh)*380);--th:124px;margin-top:calc(var(--svh)*-100)}
+#bless{height:calc(var(--svh)*540);--th:124px;margin-top:calc(var(--svh)*-100)}
 #bless .veils{position:absolute;inset:0;z-index:12;pointer-events:none}
 #bless .veil{position:absolute;left:0;right:0;top:-8%;height:116%;transform:translateY(100%);will-change:transform;
  background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,var(--a)) 7%,rgba(0,0,0,var(--a)));visibility:hidden}
@@ -128,7 +128,7 @@ body.ready .fade-in{opacity:1;transform:none}
 #bless .gwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 #bless .gsk{filter:sepia(1) saturate(2) hue-rotate(-20deg) brightness(.55);opacity:0}
 #bless .gcol{clip-path:circle(0% at 50% 55%)}
-#bless .g3{position:absolute;left:-14%;top:-10%;width:128%;height:120%;pointer-events:none;display:none}
+#bless .g3{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;display:none;opacity:0}
 #bless.g3on .g3{display:block}#bless.g3on .gsk,#bless.g3on .gcol{visibility:hidden}
 #bless .aura{position:absolute;left:50%;top:50%;width:80vmax;aspect-ratio:1;z-index:0;border-radius:50%;transform:translate(-50%,-50%) scale(0);opacity:0;will-change:transform,opacity;
   background:radial-gradient(closest-side,rgba(255,214,120,.95) 0,rgba(255,150,40,.75) 14%,rgba(255,100,10,.45) 30%,rgba(200,50,0,.2) 48%,rgba(120,20,0,0) 68%);mix-blend-mode:screen}
@@ -647,6 +647,7 @@ body.ready #chap.away{opacity:0;pointer-events:none}
       <div class="mantra" lang="or">ଶ୍ରୀ ଗଣେଶାୟ ନମଃ</div>
       <div class="tr">Shri Ganeshaya Namah</div>
     </div>
+    <canvas class="g3" aria-hidden="true"></canvas>
     <div class="gzone">
       <div class="aura"></div>
       <div class="raysw"><div class="rays"></div></div>
@@ -685,7 +686,6 @@ body.ready #chap.away{opacity:0;pointer-events:none}
       <div class="gwrap">
         <img class="gsk" src="ganesha-sketch.webp" alt="">
         <img class="gcol" src="ganesha.webp" alt="Lord Ganesha">
-        <canvas class="g3" aria-hidden="true"></canvas>
       </div>
     </div>
     <div class="txt bot"><p class="msg" id="blessMsg">With the blessings of Lord Ganesha and our families, we invite you to celebrate with us.</p></div>
@@ -1183,8 +1183,8 @@ const U={
   gsk.style.opacity=.55*seg(p,.42,.5)*(1-seg(p,.62,.72));
   const r=eo(seg(p,.5,.7));gcol.style.clipPath=`circle(${r*75}% at 50% 55%)`;
   gwrap.style.transform=`scale(${lerp(.9,1.03,eo(seg(p,.42,.75)))})`;
-  btop.style.transform=`translateY(${lerp(24,0,eo(seg(p,.62,.72)))}px)`;btop.style.opacity=seg(p,.62,.72);
-  const w=seg(p,.72,.92)*bwords.length;bwords.forEach((s,i)=>s.style.opacity=cl(w-i,0,1));
+  {const g=G3.ok,a=g?.8:.62,b=g?.88:.72;btop.style.transform=`translateY(${lerp(24,0,eo(seg(p,a,b)))}px)`;btop.style.opacity=seg(p,a,b);}
+  const w=(G3.ok?seg(p,.86,.98):seg(p,.72,.92))*bwords.length;bwords.forEach((s,i)=>s.style.opacity=cl(w-i,0,1));
  },
  moments(p,el){
   const M=el._m||(el._m={head:$('.pd-head',el),cards:$$('.pd-card',el),pill:$('.pd-pill',el),ps:$$('.pd-pill p',el),fin:$('.pd-fin',el),fimg:$('.pd-fin img',el)});
@@ -1411,6 +1411,7 @@ const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
  P.start=()=>{build().catch(()=>{P.on=false})};
  return P})();
 /* Lord Ganesha in 3D: a small WebGL2 renderer for the site's own compact mesh format */
+/* Lord Ganesha in 3D: a small WebGL2 renderer for the site's own compact mesh format */
 const G3D=function(cv,opt){opt=opt||{};
  const gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:true,powerPreference:'high-performance'});if(!gl)return null;
  const VS=`#version 300 es
@@ -1447,18 +1448,20 @@ const G3D=function(cv,opt){opt=opt||{};
   const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint32Array(buf,o,h.t*3),gl.STATIC_DRAW);
   cnt=h.t*3;mn=h.min;mx=h.max;TB=tex(b);S.vao=vao;S.ready=true;};
  const mul=(a,b)=>{const r=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];r[i*4+j]=s}return r};
+ const look=(e,t)=>{let z=[e[0]-t[0],e[1]-t[1],e[2]-t[2]];let l=Math.hypot(...z);z=z.map(v=>v/l);let up=[0,1,0];if(Math.abs(z[1])>.999)up=[0,0,-1];
+  let x=[up[1]*z[2]-up[2]*z[1],up[2]*z[0]-up[0]*z[2],up[0]*z[1]-up[1]*z[0]];l=Math.hypot(...x);x=x.map(v=>v/l);const y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
+  return [x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]),-(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]),-(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]),1]};
+ // camera: orbit angle (yaw), elevation (pitch, negative = from below), distance, look-at height, screen shift
+ Object.assign(S,{cy:0,cp:0,cd:6,ct:0,sx:0,sy:0,fov:30});
  S.draw=(dpr)=>{if(!S.ready)return;const W=cv.clientWidth,H=cv.clientHeight,w=Math.round(W*dpr),h=Math.round(H*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
   gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
   gl.useProgram(pr);gl.bindVertexArray(S.vao);
-  const cy=Math.cos(S.yaw),sy=Math.sin(S.yaw),cp=Math.cos(S.pitch),sp=Math.sin(S.pitch);
-  // model: centred, height 2 units
   const c=[(mn[0]+mx[0])/2,(mn[1]+mx[1])/2,(mn[2]+mx[2])/2],sc=2/(mx[1]-mn[1]);
-  const R=[cy,sp*sy,-cp*sy,0, 0,cp,sp,0, sy,-sp*cy,cp*cy,0, 0,0,0,1];
-  const T=[sc,0,0,0,0,sc,0,0,0,0,sc,0,-c[0]*sc,-c[1]*sc,-c[2]*sc,1];
-  const M=mul(R,T);
-  const ez=opt.dist||5.2,f=1/Math.tan((opt.fov||26)*Math.PI/360),asp=w/h,n=.1,fa=50;
-  const Pm=[f/asp,0,0,0,0,f,0,0,0,0,(fa+n)/(n-fa),-1,0,0,2*fa*n/(n-fa),0];const V=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,-ez,1];
-  gl.uniformMatrix4fv(U.uM,false,M);gl.uniformMatrix4fv(U.uVP,false,mul(Pm,V));gl.uniform3fv(U.uMin,mn);gl.uniform3fv(U.uMax,mx);gl.uniform3f(U.uEye,0,0,ez);
+  const M=[sc,0,0,0,0,sc,0,0,0,0,sc,0,-c[0]*sc,-c[1]*sc,-c[2]*sc,1];
+  const tg=[0,S.ct,0],e=[tg[0]+S.cd*Math.cos(S.cp)*Math.sin(S.cy),tg[1]+S.cd*Math.sin(S.cp),tg[2]+S.cd*Math.cos(S.cp)*Math.cos(S.cy)];
+  const f=1/Math.tan(S.fov*Math.PI/360),asp=w/h,n=.02,fa=60;
+  const Pm=[f/asp,0,0,0,0,f,0,0,S.sx,S.sy,(fa+n)/(n-fa),-1,0,0,2*fa*n/(n-fa),0];
+  gl.uniformMatrix4fv(U.uM,false,M);gl.uniformMatrix4fv(U.uVP,false,mul(Pm,look(e,tg)));gl.uniform3fv(U.uMin,mn);gl.uniform3fv(U.uMax,mx);gl.uniform3f(U.uEye,e[0],e[1],e[2]);
   gl.uniform3f(U.uKey,-.55,-.35,.85);gl.uniform3f(U.uKeyC,1.55,1.05,.62);gl.uniform3f(U.uRim,.85,.75,-.5);gl.uniform3f(U.uRimC,1.25,.72,.35);gl.uniform3f(U.uAmb,.16,.09,.1);
   gl.uniform1f(U.uExp,S.exp);gl.uniform1f(U.uReveal,S.reveal);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,TB);gl.uniform1i(U.uB,0);
@@ -1470,10 +1473,20 @@ const G3=(()=>{const P={ok:false,draw(){}};if(RM)return P;const cv=$('#bless .g3
  P.start=()=>{try{r=G3D(cv,{mesh:'ganesha-mesh.json',dist:6.1})}catch(e){r=null}if(!r)return;
   const big=innerWidth>=900&&!LITE&&(devicePixelRatio||1)>=1.5;
   r.load(big?'g-base-4k.jpg':'g-base-2k.jpg').then(()=>{P.ok=true;$('#bless').classList.add('g3on')}).catch(()=>{})};
- P.draw=(p,t)=>{if(!P.ok)return;const k=eo(seg(p,.46,.68));r.reveal=k;
+ // three shots: from beneath the seat, a low close-up beside the raised hand, then the full darshan
+ const K=[{cy:.3,cp:-1.45,cd:1.15,ct:-1},{cy:-.75,cp:-.32,cd:2.0,ct:.22},{cy:0,cp:-.03,cd:6.3,ct:0}];
+ P.draw=(p,t)=>{if(!P.ok)return;const o=eo(seg(p,.44,.5));cv.style.opacity=o.toFixed(3);if(o<=0)return;
+  const a=eio(seg(p,.5,.64)),b=eio(seg(p,.64,.8));
+  const H=cv.clientHeight,gz=$('#bless .gzone').getBoundingClientRect(),st=cv.getBoundingClientRect(),gw=$('#bless .gwrap'),gh=gw.offsetHeight,gyc=gz.top-st.top+gz.height/2;
+  const dF=H/(gh*.97*Math.tan(15*Math.PI/180)),shift=(H/2-gyc)/(H/2);
+  K[0].cd=1.15*Math.min(1,1.25*H/Math.max(1,cv.clientWidth));K[1].cd=2*Math.min(1,.55+.55*H/Math.max(1,cv.clientWidth));
+  const L=(k)=>{const x=lerp(K[0][k],K[1][k],a);return b>0?lerp(K[1][k],k==='cd'?dF:K[2][k],b):x};
   const f=matchMedia('(pointer:fine)').matches,px=f?(cx/innerWidth-.5):0,py=f?(cy/innerHeight-.5):0;P.px=(P.px||0)+(px-(P.px||0))*.06;P.py=(P.py||0)+(py-(P.py||0))*.06;
-  r.yaw=lerp(.9,0,eio(seg(p,.46,.82)))+Math.sin(t*.00045)*.07+P.px*.32;r.pitch=-.04+P.py*.1;
-  if(k>0)r.draw(Math.min(devicePixelRatio||1,LITE?1.25:2));};
+  const settle=seg(p,.8,.9);
+  r.cy=L('cy')+settle*(Math.sin(t*.00045)*.06+P.px*.3);r.cp=L('cp')+settle*P.py*.08;
+  r.cd=a<1?Math.exp(lerp(Math.log(K[0].cd),Math.log(K[1].cd),a)):Math.exp(lerp(Math.log(K[1].cd),Math.log(dF),b));
+  r.ct=L('ct');r.sx=0;r.sy=-shift*b;r.reveal=1;
+  r.draw(Math.min(devicePixelRatio||1,LITE?1.25:2));};
  if(!P.start)P.start=()=>{};return P})();
 /* ---------- Kaudi Khela ---------- */
 (()=>{const kk=$('#kk');if(!kk)return;const w=$('.kk-water',kk),cw=$('.kk-cowrie',kk),msg=$('.kk-msg',kk),again=$('.kk-again',kk);let K={},busy=false;
