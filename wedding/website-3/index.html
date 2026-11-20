@@ -373,8 +373,10 @@ body.ready .fade-in{opacity:1;transform:none}
 #sky{height:calc(var(--svh)*470)}
 #sky .stage{background:#0d0a26}
 #sky canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
-#sky .land{position:absolute;left:0;right:0;bottom:0;width:100%;height:auto;z-index:3;min-height:calc(var(--svh)*24)}
+#sky .land{position:absolute;left:0;right:0;bottom:calc(var(--fh,0px)*var(--fk,0));width:100%;height:auto;z-index:3;min-height:calc(var(--svh)*24)}
 #sky .land svg{width:100%;height:max(calc(100vw*300/1440),calc(var(--svh)*24));display:block}
+@media (max-width:899px){#sky .land{min-height:0}#sky .land svg{height:max(calc(100vw*300/1440),calc(var(--svh)*17))}#sky .fin{top:calc(var(--svh)*20)}}
+#sky .ground{position:absolute;left:0;right:0;bottom:0;height:calc(var(--fh,0px)*var(--fk,0) + 2px);z-index:3;background:#0a0418}
 #sky .stx{pointer-events:none}
 #sky canvas{cursor:none}
 .sk-tglow{opacity:0;transition:opacity .6s}
@@ -402,21 +404,16 @@ body.ready .fade-in{opacity:1;transform:none}
 #sky .fin .dates{display:flex;justify-content:center;gap:clamp(12px,4vw,40px);margin-top:22px;flex-wrap:wrap}
 #sky .fin .dates div{font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;color:#ffe7c4}
 #sky .fin .dates b{display:block;font-family:var(--disp);font-weight:400;font-size:1.5rem;letter-spacing:0;color:#fff;margin-bottom:2px}
-footer{background:#07051a;text-align:center;padding:34px 20px calc(40px + env(safe-area-inset-bottom));font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,230,190,.7)}
-footer .reach{margin:26px auto 0;padding-top:22px;border-top:1px solid rgba(255,214,160,.16);max-width:420px;display:flex;flex-direction:column;align-items:center;gap:12px}
-footer .reach p{font-size:.6rem;letter-spacing:.4em;color:var(--gold)}
-footer .reach a{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:99px;border:1px solid rgba(255,214,160,.28);background:rgba(255,255,255,.03);color:#ffe7c4;text-decoration:none;text-transform:none;letter-spacing:.06em;font-size:.86rem;transition:border-color .3s,background .3s,box-shadow .3s,transform .3s;-webkit-user-select:text;user-select:text}
-footer .reach svg{width:18px;height:18px;fill:none;stroke:var(--gold2);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
-@media (hover:hover) and (pointer:fine){footer .reach a:hover{border-color:var(--gold2);background:rgba(255,200,120,.08);box-shadow:0 0 22px rgba(255,170,80,.25);transform:translateY(-2px)}}
 @media (min-width:900px){
- footer{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:32px;padding:30px 48px}
- footer .brand{grid-column:2}
- footer .reach{grid-column:3;justify-self:end;margin:0;padding:0;border:0;max-width:none;align-items:flex-end;gap:8px}
- footer .reach a{padding:7px 14px;font-size:.78rem}
- footer .reach svg{width:15px;height:15px}
- #sky .fin{top:calc(var(--svh)*17)}
+ #sky .fin{top:calc(var(--svh)*10)}
+ #sky .fin .or{font-size:min(6.4rem,calc(var(--svh)*9.5))}
+ #sky .fin .en{margin-top:calc(var(--svh)*.4)}
+ #sky .fin h2{font-size:min(3.6rem,calc(var(--svh)*5.6));margin-top:calc(var(--svh)*1.8)}
+ #sky .fin .ono{font-size:min(1.4rem,calc(var(--svh)*2.6))}
+ #sky .fin .dates{margin-top:calc(var(--svh)*2.4)}
+ #sky .fin .dates b{font-size:min(1.5rem,calc(var(--svh)*3.2))}
 }
-footer b{display:block;font-family:var(--disp);font-weight:400;letter-spacing:.06em;font-size:1.3rem;color:var(--gold2);margin-bottom:8px;text-transform:none}
+@media (min-width:900px) and (max-height:700px){#sky .fin{top:calc(var(--svh)*8.5)}#sky .fin .or{font-size:calc(var(--svh)*8.2)}#sky .fin h2{font-size:calc(var(--svh)*5)}#sky .fin .dates{margin-top:calc(var(--svh)*1.8)}}
 
 @media (max-height:820px){.hint{display:none}}
 @media (max-height:700px){#bless{--th:92px}}
@@ -437,6 +434,23 @@ footer b{display:block;font-family:var(--disp);font-weight:400;letter-spacing:.0
 /* slower phones: drop the costliest effects (glass blur, big filters) */
 html.lite #bar span,html.lite .rc{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 html.lite #bar span{background:rgba(36,5,12,.85)}
+/* closing credits: sit on the dark ground of the final night scene, so the page ends on the full picture */
+.skyfoot{position:absolute;left:0;right:0;bottom:0;z-index:6;opacity:0;padding:14px 22px calc(18px + env(safe-area-inset-bottom));
+ display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;color:rgba(255,230,190,.72);pointer-events:none}
+.skyfoot.on{pointer-events:auto}
+.skyfoot .brand b{display:block;font-family:var(--disp);font-weight:400;font-size:1.25rem;letter-spacing:.04em;color:var(--gold2)}
+.skyfoot .brand span{display:block;margin-top:5px;font-size:.6rem;letter-spacing:.34em;text-transform:uppercase}
+.skyfoot .reach{display:flex;flex-direction:column;align-items:center;gap:5px}
+.skyfoot .reach p{font-size:.56rem;letter-spacing:.38em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.skyfoot .reach a{display:inline-flex;align-items:center;gap:9px;color:#ffe7c4;text-decoration:none;font-size:.82rem;letter-spacing:.03em;line-height:1.5;position:relative;-webkit-user-select:text;user-select:text}
+.skyfoot .reach a::after{content:"";position:absolute;left:25px;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--gold2),transparent);transform:scaleX(0);transform-origin:0 50%;transition:transform .35s}
+.skyfoot .reach svg{width:15px;height:15px;fill:none;stroke:var(--gold2);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+@media (hover:hover) and (pointer:fine){.skyfoot .reach a:hover{color:#fff}.skyfoot .reach a:hover::after{transform:scaleX(1)}}
+@media (min-width:900px){
+ .skyfoot{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 48px calc(20px + env(safe-area-inset-bottom))}
+ .skyfoot .brand{grid-column:2}
+ .skyfoot .reach{grid-column:3;justify-self:end;align-items:flex-end}
+}
 /* text people may want to copy: names, dates, venues, ritual notes */
 .ev-info,.ev-info *,#sky .fin,#sky .fin *,#rit .rc p,#rit .rc h3,#hero h1 *{-webkit-user-select:text;user-select:text}
 /* keyboard: clear focus ring, chapter navigation, skip link */
@@ -445,6 +459,7 @@ html.lite #bar span{background:rgba(36,5,12,.85)}
 #skip:focus-visible{transform:translate(-50%,0)}
 #chap{position:fixed;right:max(14px,env(safe-area-inset-right));top:50%;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:14px;opacity:0;transition:opacity .6s}
 body.ready #chap{opacity:1}
+body.ready #chap.away{opacity:0;pointer-events:none}
 #chap button{all:unset;position:relative;width:9px;height:9px;border-radius:50%;border:1px solid rgba(255,214,160,.55);background:transparent;cursor:pointer;transition:background .3s,transform .3s}
 #chap button::after{content:attr(aria-label);position:absolute;right:20px;top:50%;transform:translateY(-50%) translateX(6px);white-space:nowrap;font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold2);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
 #chap button.on{background:var(--gold2);transform:scale(1.25)}
@@ -719,14 +734,17 @@ body.ready #chap{opacity:1}
         <div><b>27.01</b>Nirbandha</div><div><b>26.02</b>Bahaghara</div><div><b>03.03</b>Reception</div>
       </div>
     </div>
+    <div class="ground" aria-hidden="true"></div>
+    <footer class="skyfoot">
+      <div class="brand"><b>Rajesh &amp; Chinmayee</b><span>Made with love in Bengaluru</span></div>
+      <div class="reach"><p>Reach out to me</p>
+        <a href="mailto:rajeshnayakabcd@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg><span>rajeshnayakabcd@gmail.com</span></a>
+        <a href="https://www.instagram.com/genhu_____1509/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg><span>@genhu_____1509</span></a>
+      </div>
+    </footer>
   </div>
 </section>
 </main>
-<footer><div class="brand"><b>Rajesh &amp; Chinmayee</b>Made with love in Bengaluru</div>
-<div class="reach"><p>Reach out to me</p>
-<a href="mailto:rajeshnayakabcd@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg><span>rajeshnayakabcd@gmail.com</span></a>
-<a href="https://www.instagram.com/genhu_____1509/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg><span>@genhu_____1509</span></a>
-</div></footer>
 
 <script>
 (()=>{
@@ -996,11 +1014,12 @@ const U={
    t.style.fill=`rgba(255,232,205,${(fl*.17).toFixed(3)})`;t.style.stroke=`rgba(255,214,160,${(.9-fl*.62).toFixed(3)})`;});
   const S=[.08,.19,.3,.41,.52],D=.29,Y=mob?[-7,6,-7,6,0]:[-4,4,-5,3,0];
   M.cards.forEach((c,i)=>{const u=seg(p,S[i],S[i]+D),on=u>0&&u<1;if(c._on!==on){c._on=on;c.style.visibility=on?'visible':'hidden'}
-   if(!on)return;const e=u<.5?eo(u*2)*.5:.5+eio((u-.5)*2)*.5,x=lerp(95,-95,e),bob=Math.sin(T*1.3+i*1.7)*1.2;
+   if(!on)return;const e=u<.5?eo(u*2)*.5:.5+eio((u-.5)*2)*.5,bob=Math.sin(T*1.3+i*1.7)*1.2;let x=lerp(95,-95,e);
    // hover: the photo straightens, lifts towards you and tilts to follow the pointer
    const hv=c._hv=(c._hv||0)+((c._hov?1:0)-(c._hv||0))*.14;let tx=0,ty=0;
    if(hv>.001){const r=c.getBoundingClientRect();tx=cl((cx-(r.left+r.width/2))/(r.width/2),-1,1);ty=cl((cy-(r.top+r.height/2))/(r.height/2),-1,1);
     c.style.setProperty('--mx',((tx+1)*50).toFixed(1)+'%');c.style.setProperty('--my',((ty+1)*50).toFixed(1)+'%');}
+   if(hv>.001){const vw=innerWidth,w=c.offsetWidth*1.2,lim=Math.max(0,(vw/2-w/2-28)/vw*100);x=lerp(x,cl(x,-lim,lim),hv);}
    c.style.zIndex=hv>.05?4:3;
    c.style.transform=`translate(-50%,-50%) translate(${x}vw,${Y[i]+bob*(1-hv)}svh) perspective(1100px) rotateY(${lerp(lerp(-26,26,u),tx*10,hv)}deg) rotateX(${(-ty*8*hv).toFixed(2)}deg) rotateZ(${(lerp(9,-9,u)+Math.sin(T+i)*1.5)*(1-hv)}deg) scale(${(1-Math.abs(u-.5)*.25)*(1+.12*hv)})`;});
   // caption pill: chapters 1–4 only
@@ -1013,10 +1032,11 @@ const U={
    // end size: fill the screen on phones; on wide screens fill the height only, so the photo is never cropped or over-enlarged
    const full=vw/vh<=AR*1.15,eh=full?vh:vh*.94,ew=full?vw:eh*AR;
    const iw=lerp(cw,ew,f1),ih=lerp(ch,eh,f1),r=full?lerp(18,0,f1):lerp(18,24,f1),e=eo(f0);
-   const x=lerp(95,0,e),ty=lerp(-9,0,f1)*(1-f1>0?1:0);
+   let x=lerp(95,0,e);const ty=lerp(-9,0,f1)*(1-f1>0?1:0);
    M.fin.style.top=lerp(41,50,f1)+'%';
    M.fin.style.width=iw.toFixed(1)+'px';M.fin.style.height=ih.toFixed(1)+'px';M.fin.style.borderRadius=r.toFixed(1)+'px';M.fin.style.opacity=1;
    const F=M.fin,hv=F._hv=(F._hv||0)+((F._hov?1:0)-(F._hv||0))*.14;let hx=0,hy=0;
+   if(hv>.001){const lim=Math.max(0,(vw/2-iw*1.08/2-28)/vw*100);x=lerp(x,cl(x,-lim,lim),hv);}
    if(hv>.001){const r=F.getBoundingClientRect();hx=cl((cx-(r.left+r.width/2))/(r.width/2),-1,1);hy=cl((cy-(r.top+r.height/2))/(r.height/2),-1,1);
     F.style.setProperty('--mx',((hx+1)*50).toFixed(1)+'%');F.style.setProperty('--my',((hy+1)*50).toFixed(1)+'%');}
    const big=full&&f1>.5,ts=big?0:1; // on a full-screen photo keep the tilt very small
@@ -1063,7 +1083,8 @@ const U={
  },
  sky(p,el){
   [[.04,.1,.26,.32],[.36,.42,.56,.62],[.7,.8,2,2]].forEach((r,i)=>{const o=seg(p,r[0],r[1])*(1-seg(p,r[2],r[3]));stx[i].style.opacity=o;stx[i].style.transform=`translateY(${(1-seg(p,r[0],r[1]))*24}px)`});
-  const c=skyCols(p);lgA.setAttribute('stop-color',rgb(mix(c[2],[10,4,24],.75)));lgB.setAttribute('stop-color',rgb(mix(c[0],[6,2,16],.85)));
+  el.style.setProperty('--fk',eio(seg(p,.74,.88)).toFixed(4));{const f=el._ft||(el._ft=$('.skyfoot',el)),o=seg(p,.82,.92);f.style.opacity=o.toFixed(3);f.classList.toggle('on',o>.5)}
+  const c=skyCols(p);lgA.setAttribute('stop-color',rgb(mix(c[2],[10,4,24],.75)));lgB.setAttribute('stop-color',rgb(mix(c[0],[6,2,16],.85)));{const g=el._gd||(el._gd=$('.ground',el));g.style.background=rgb(mix(c[0],[6,2,16],.85))}
  }
 };
 if(matchMedia('(hover:hover) and (pointer:fine)').matches)$$('#moments .pd-card,#moments .pd-fin,.event .card').forEach(c=>{c.addEventListener('pointerenter',()=>{c._hov=1;c.classList.add('hov')});c.addEventListener('pointerleave',()=>{c._hov=0;c.classList.remove('hov')})});
@@ -1085,7 +1106,7 @@ if(matchMedia('(hover:hover) and (pointer:fine)').matches)$$('#moments .pd-card,
    const dx=(Math.random()-.5)*60;d.animate([{transform:`translate(${x}px,${y}px) scale(.4)`,opacity:0},{opacity:1,offset:.2},{transform:`translate(${x+dx}px,${y-110-Math.random()*60}px) scale(1)`,opacity:0}],{duration:1400+Math.random()*800,easing:'ease-out',fill:'forwards'}).onfinish=()=>{d.remove();live--}}};
  k.addEventListener('pointerenter',()=>{puff();tm=setInterval(puff,160)});k.addEventListener('pointerleave',()=>clearInterval(tm));
 })();
-const SELOK='footer .reach,.ev-info,#sky .fin,#rit .rc p,#rit .rc h3,#hero h1';
+const SELOK='.skyfoot .reach,.ev-info,#sky .fin,#rit .rc p,#rit .rc h3,#hero h1';
 ['selectstart','dragstart','contextmenu'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target.nodeType===1?e.target:e.target.parentElement;if(ev!=='dragstart'&&t&&t.closest&&t.closest(SELOK))return;e.preventDefault()}));
 const SEAM={hero:[null,null],bless:[null,'#000'],moments:[null,'#000'],nb:['#000','#000'],bh:['#000','#000'],rc:['#000','#000'],knot:[null,'#000'],sky:['#ff7860',null]};
 const scenes=$$('[data-scene]').map(el=>{const key=el.dataset.scene==='event'?['nb','bh','rc'][+el.dataset.i]:el.dataset.scene,st=$('.stage',el),f=[];
@@ -1093,7 +1114,7 @@ const scenes=$$('[data-scene]').map(el=>{const key=el.dataset.scene==='event'?['
  return {el,k:el.dataset.scene,p:-1,t:0,top:0,len:1,f,st,ov:key==='moments'||key==='bh'||key==='rc'}});
 const G={};function geo(el){const r=el.getBoundingClientRect();return {top:r.top+scrollY,h:el.offsetHeight}}
 function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top=r.top+scrollY;s.len=Math.max(1,s.el.offsetHeight-innerHeight);s.el._top=s.top});
- G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;G.hero=geo($('#hero'));G.sky=geo($('#sky'));G.foot=geo($('footer'));if(typeof chapMeasure==='function')chapMeasure();
+ G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
@@ -1103,8 +1124,8 @@ const CH=[['Welcome',()=>0],['Blessing',()=>G.bless.top+(G.bless.h-innerHeight)*
  ['Rituals',()=>$('#rit').getBoundingClientRect().top+scrollY],['Finale',()=>document.documentElement.scrollHeight-innerHeight]];
 const chapNav=$('#chap'),chapBtns=CH.map(([n,f])=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',n);
  b.addEventListener('click',()=>{smooth=false;scrollTo({top:f(),behavior:RM?'auto':'smooth'})});chapNav.appendChild(b);return b});
-let CHY=[];function chapMeasure(){CHY=CH.map(c=>c[1]())}
-function chapUpdate(y){let k=0;CHY.forEach((v,i)=>{if(y>=v-innerHeight*.6)k=i});chapBtns.forEach((b,i)=>{const on=i===k;if(b._on!==on){b._on=on;b.classList.toggle('on',on);on?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current')}})}
+let CHY=[],CHM=[0,0];function chapMeasure(){CHY=CH.map(c=>c[1]());const m=$('#moments'),t=m.getBoundingClientRect().top+scrollY;CHM=[t-innerHeight*.3,t+m.offsetHeight-innerHeight*.7]}
+function chapUpdate(y){chapNav.classList.toggle('away',y>CHM[0]&&y<CHM[1]);let k=0;CHY.forEach((v,i)=>{if(y>=v-innerHeight*.6)k=i});chapBtns.forEach((b,i)=>{const on=i===k;if(b._on!==on){b._on=on;b.classList.toggle('on',on);on?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current')}})}
 /* ---------- travelling wheel: one continuous gold path, drawn inside every section behind its content ---------- */
 // [selector, mode p=pinned progress / v=visibility progress, f, x, y (number or [desktop,phone]), size, glow]
 const RWK=[
@@ -1205,7 +1226,7 @@ const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.m
   if(s.k==='sky'&&vis)drawSky(s.p,t);}
  const hr={bottom:G.evh.top+G.evh.h-y},gq=eio(seg((vh-hr.bottom)/(vh*.85)));
  bans[0].style.transform=`translateX(${-gq*75}%) scale(${1+gq*.2})`;bans[1].style.transform=`translateX(${gq*75}%) scale(${1+gq*.2})`;
- if(introDone){const br={top:G.bless.top-y,bottom:G.bless.top+G.bless.h-y};barEl.style.opacity=(1-cl(-br.top/80)*cl((br.bottom-vh)/80))*(G.foot?1-cl((vh-(G.foot.top-y))/140):1)}
+ if(introDone){const br={top:G.bless.top-y,bottom:G.bless.top+G.bless.h-y};barEl.style.opacity=(1-cl(-br.top/80)*cl((br.bottom-vh)/80))}
  const er={top:G.ec.top-y,bottom:G.ec.top+G.ec.h-y};if(er.bottom>0&&er.top<vh&&!RM&&!LITE)drawMotes(t);
 }
 requestAnimationFrame(loop);
