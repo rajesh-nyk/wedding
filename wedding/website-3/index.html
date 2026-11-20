@@ -1437,7 +1437,7 @@ const G3D=function(cv,opt){opt=opt||{};
   const ext=gl.getExtension('EXT_texture_filter_anisotropic');if(ext)gl.texParameterf(gl.TEXTURE_2D,ext.TEXTURE_MAX_ANISOTROPY_EXT,8);return t};
  const img=s=>new Promise((r,j)=>{const i=new Image();i.decoding='async';i.onload=()=>r(i);i.onerror=j;i.src=s});
  let TB;
- S.load=async(base)=>{const [buf,b]=await Promise.all([fetch(opt.mesh||'ganesha.bin').then(x=>{if(!x.ok)throw 0;return x.arrayBuffer()}),img(base)]);
+ S.load=async(base)=>{const [buf,b]=await Promise.all([fetch(opt.mesh).then(x=>{if(!x.ok)throw 0;return x.json()}).then(j=>{const s=atob(j.b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer}),img(base)]);
   const hl=new DataView(buf).getUint32(0,true),h=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,4,hl)));let o=4+hl;
   const vao=gl.createVertexArray();gl.bindVertexArray(vao);
   const att=(name,data,size,type,norm,stride)=>{const bb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bb);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);const l=gl.getAttribLocation(pr,name);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,type,norm,stride||0,0)};
@@ -1467,7 +1467,7 @@ const G3D=function(cv,opt){opt=opt||{};
 
 /* Lord Ganesha in 3D: loads quietly after the page is ready; until then (or without WebGL) the painted Ganesha is shown */
 const G3=(()=>{const P={ok:false,draw(){}};if(RM)return P;const cv=$('#bless .g3');let r=null;
- P.start=()=>{try{r=G3D(cv,{mesh:'ganesha.bin',dist:6.1})}catch(e){r=null}if(!r)return;
+ P.start=()=>{try{r=G3D(cv,{mesh:'ganesha-mesh.json',dist:6.1})}catch(e){r=null}if(!r)return;
   const big=innerWidth>=900&&!LITE&&(devicePixelRatio||1)>=1.5;
   r.load(big?'g-base-4k.jpg':'g-base-2k.jpg').then(()=>{P.ok=true;$('#bless').classList.add('g3on')}).catch(()=>{})};
  P.draw=(p,t)=>{if(!P.ok)return;const k=eo(seg(p,.46,.68));r.reveal=k;
