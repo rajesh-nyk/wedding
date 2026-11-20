@@ -532,6 +532,8 @@ html.lite #bar span{background:rgba(36,5,12,.85)}
 .kk-again:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
 @media (hover:hover) and (pointer:fine){.kk-again:hover{background:rgba(255,200,120,.1);border-color:var(--gold2)}}
 @media (min-width:900px){.kk{margin-top:calc(var(--svh)*12)}}
+#glp{position:fixed;inset:0;width:100%;height:100%;z-index:45;pointer-events:none;opacity:0;transition:opacity .25s}
+#glp.on{opacity:1}
 /* text people may want to copy: names, dates, venues, ritual notes */
 .ev-info,.ev-info *,#sky .fin,#sky .fin *,#rit .rc p,#rit .rc h3,#hero h1 *{-webkit-user-select:text;user-select:text}
 /* keyboard: clear focus ring, chapter navigation, skip link */
@@ -610,6 +612,7 @@ body.ready #chap.away{opacity:0;pointer-events:none}
 
 <div id="cur" aria-hidden="true"><i class="ring"><b></b><u></u></i><i class="dot"></i></div>
 <div id="prog"></div>
+<canvas id="glp" aria-hidden="true"></canvas>
 <a id="skip" href="#events">Skip to the ceremonies</a>
 <nav id="chap" aria-label="Chapters"></nav>
 <div id="bar"><span class="mono">R<b>✦</b>C</span><span class="dt">Odisha · 2027</span></div>
@@ -1156,20 +1159,20 @@ const U={
   const D=DY,now=tNow,dt=Math.min(64,now-(D.t||now));D.t=now;
   if(p<.012&&!D.holding){D.lit=false;D.hold=0}
   if(!D.lit){D.hold=cl(D.hold+(D.holding?dt/1100:-dt/500));if(D.hold>=1)lightDiya();}
-  const sf=eo(seg(p,.1,.16));if(sf>=1&&!D.lit){D.lit=true}
+  const sf=eo(seg(p,.1+(GLP.on?.05:0),.16+(GLP.on?.04:0)));if(sf>=1&&!D.lit){D.lit=true}
   D.fl=cl((D.fl||0)+(((D.lit?1:Math.max(sf,D.hold*.7)))-(D.fl||0))*Math.min(1,dt/120));
-  const fk=Math.max(D.fl,D.lit?1:0),dIn=eo(seg(p,.02,.08)),dOut=seg(p,.3,.42);
+  const PO=GLP.on?.05:0,fk=Math.max(D.fl,D.lit?1:0),dIn=GLP.on?eo(seg(p,.07,.1)):eo(seg(p,.02,.08)),dOut=seg(p,.3,.42);
   D.w.style.opacity=(dIn*(1-dOut)).toFixed(3);D.w.style.visibility=dIn*(1-dOut)>0?'visible':'hidden';
   D.w.style.transform=`translate(-45.45%,-47%) scale(${(lerp(.86,1,dIn)*lerp(1,.8,dOut)).toFixed(4)})`;
   D.btn.style.pointerEvents=dIn>.5&&dOut<.2?'auto':'none';
   D.flame.style.opacity=fk>.01?1:0;D.flame.setAttribute('transform',`translate(100 80) scale(${(.15+.85*fk).toFixed(3)})`);
   D.glow.style.opacity=(fk*(1-.5*seg(p,.22,.36))).toFixed(3);
   D.ring.style.strokeDashoffset=(296*(1-D.hold)).toFixed(1);D.ring.style.opacity=D.lit?0:(D.hold>.01?1:0);
-  D.hint.style.opacity=(dIn*(1-Math.max(D.lit?1:0,seg(p,.08,.12)))).toFixed(3);
+  D.hint.style.opacity=(dIn*(1-Math.max(D.lit?1:0,seg(p,.08+PO+.01,.12+PO)))).toFixed(3);
   // 3 a single ray of light falls onto the flame
-  const bk=eo(seg(p,.13,.24));beam.style.transform=`translateX(-50%) scaleY(${bk})`;beam.style.opacity=bk*(1-.6*seg(p,.34,.5));
+  const bk=eo(seg(p,.13+PO,.24+PO*.8));beam.style.transform=`translateX(-50%) scaleY(${bk})`;beam.style.opacity=bk*(1-.6*seg(p,.34,.5));
   // 4 the aura swells out of the flame
-  const ak=eo(seg(p,.2,.38));aura.style.transform=`translate(-50%,-50%) scale(${lerp(.1,1.25,ak)})`;aura.style.opacity=ak;
+  const ak=eo(seg(p,.2+PO*.8,.38));aura.style.transform=`translate(-50%,-50%) scale(${lerp(.1,1.25,ak)})`;aura.style.opacity=ak;
   // 5 the lines burst out
   const rk=eo(seg(p,.32,.48));raysw.style.opacity=rk;raysw.style.transform=`scale(${lerp(.3,1,rk)}) rotate(${(1-rk)*-40}deg)`;
   // 6 Ganesha: outline, then colour
@@ -1318,10 +1321,90 @@ scenes.forEach((s,i)=>{s.prev=scenes[i-1]||null});
 function fitWm(){$$('#rit .rc .wm').forEach(w=>{const c=w.parentElement,max=c.clientWidth-40;w.style.setProperty('--wf','4.6rem');const ww=w.scrollWidth;if(ww>max)w.style.setProperty('--wf',(4.6*max/ww).toFixed(3)+'rem')})}
 const G={};function geo(el){const r=el.getBoundingClientRect();return {top:r.top+scrollY,h:el.offsetHeight}}
 function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top=r.top+scrollY;s.len=Math.max(1,s.el.offsetHeight-innerHeight);s.el._top=s.top});
- G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
+ G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();if(typeof GLP!=='undefined'&&GLP.measure)GLP.measure();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
+/* ---------- gold-dust journey (WebGL2): the Konark wheel dissolves and reforms as the diya ---------- */
+const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
+ try{if(!RM)gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:false,powerPreference:'high-performance'})}catch(e){}
+ if(!gl)return P;
+ const VS=`#version 300 es
+ in vec2 aS;in vec2 aT;in vec3 aC;in vec3 aK;in vec4 aR;
+ uniform vec2 uRes;uniform float uT,uTime,uDpr,uRot;uniform vec3 uSrc;uniform vec4 uTgt;
+ out vec3 vC;out float vA;
+ float ez(float x){x=clamp(x,0.,1.);return x<.5?4.*x*x*x:1.-pow(-2.*x+2.,3.)/2.;}
+ void main(){
+  float t=uT,mn=min(uRes.x,uRes.y);
+  float c=cos(uRot),s=sin(uRot);vec2 sp=vec2(c*aS.x-s*aS.y,s*aS.x+c*aS.y);
+  float f=ez(t/.16);
+  vec2 src=uSrc.xy+sp*uSrc.z*(1.+.08*(1.-f));
+  vec2 tgt=uTgt.xy+aT*uTgt.zw*.5;
+  float m=ez((t-.34-aR.y*.14)/.42);
+  vec2 p=mix(src,tgt,m);
+  float b=sin(3.14159*clamp((t-.2)/.62,0.,1.));
+  float ang=aR.x*6.2832+uTime*(.35+aR.z*.5)+m*5.;
+  float rad=(.2+aR.w*.8)*mn*.34*b;
+  p+=vec2(cos(ang),sin(ang)*.62)*rad;
+  p+=(aR.zw-.5)*mn*.9*(1.-f);
+  float tw=.75+.25*sin(uTime*2.+aR.x*40.);
+  vA=f*(1.-smoothstep(.9,1.,t))*(.45+.55*aR.y)*tw;
+  vC=mix(mix(aC,aK,m),vec3(1.,.82,.5),b*.45);
+  gl_Position=vec4(p.x/uRes.x*2.-1.,1.-p.y/uRes.y*2.,0.,1.);
+  gl_PointSize=(1.4+aR.z*2.4)*uDpr*(1.+b*.7);
+ }`;
+ const FS=`#version 300 es
+ precision mediump float;in vec3 vC;in float vA;out vec4 o;
+ void main(){vec2 d=gl_PointCoord-.5;float r=length(d);float a=smoothstep(.5,.0,r);a*=a;o=vec4(vC*a*vA,a*vA);}`;
+ const sh=(t,src)=>{const x=gl.createShader(t);gl.shaderSource(x,src);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x};
+ let prog;try{prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw 0}catch(e){return P}
+ const U={};['uRes','uT','uTime','uDpr','uRot','uSrc','uTgt'].forEach(n=>U[n]=gl.getUniformLocation(prog,n));
+ const N=LITE?4000:(innerWidth<700?8000:14000);
+ // pick N points (shape coords -1..1, colour) from the opaque pixels of a drawn image
+ function sample(img,w,h,keep,extra){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data,ok=[];for(let i=0;i<w*h;i++){const a=d[i*4+3];if(a>140&&keep(d[i*4],d[i*4+1],d[i*4+2]))ok.push(i)}
+  const S=new Float32Array(N*2),C=new Float32Array(N*3);for(let k=0;k<N;k++){
+   if(extra&&k<extra.n){const a=Math.random()*6.283,r=Math.random()*extra.r;S[k*2]=extra.x+Math.cos(a)*r;S[k*2+1]=extra.y+Math.sin(a)*r*1.6;C.set(extra.c,k*3);continue}
+   const i=ok[(Math.random()*ok.length)|0],px=i%w,py=(i/w)|0;S[k*2]=(px+Math.random())/w*2-1;S[k*2+1]=(py+Math.random())/h*2-1;
+   const r=d[i*4]/255,g=d[i*4+1]/255,bb=d[i*4+2]/255,l=Math.max(r,g,bb)||1,bo=Math.min(1.6,1/l);C[k*3]=Math.min(1,r*bo*1.1);C[k*3+1]=Math.min(1,g*bo*.95);C[k*3+2]=Math.min(1,bb*bo*.8)}
+  return {S,C}}
+ const load=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src});
+ async function build(){
+  const wheel=await load('wheel-sm.webp');
+  const ws=sample(wheel,240,240,(r,g,b)=>r+g+b>200);
+  // the diya bowl, drawn from the page's own diya artwork (flame, glow and ring left out); a little ember waits at the wick
+  const svg=$('#bless .diya svg').cloneNode(true);svg.querySelectorAll('.dy-flame,.dy-glow,.dy-ring,ellipse[opacity]').forEach(e=>e.remove());
+  svg.setAttribute('width','440');svg.setAttribute('height','340');svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
+  const di=await load(url);URL.revokeObjectURL(url);
+  const ds=sample(di,220,170,()=>true,{n:(N*.06)|0,x:100/110-1,y:76/85-1,r:.035,c:[1,.86,.5]});
+  const R=new Float32Array(N*4);for(let i=0;i<N*4;i++)R[i]=Math.random();
+  const vao=gl.createVertexArray();gl.bindVertexArray(vao);
+  [['aS',ws.S,2],['aT',ds.S,2],['aC',ws.C,3],['aK',ds.C,3],['aR',R,4]].forEach(([n,data,sz])=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);const l=gl.getAttribLocation(prog,n);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0)});
+  P.vao=vao;P.on=true;measureGL();}
+ let A={y0:0,y1:1,gx:0,gy:0,dw:0,dh:0},dpr=1;
+ function measureGL(){if(!P.on)return;dpr=Math.min(devicePixelRatio||1,LITE?1:2);cv.width=Math.round(innerWidth*dpr);cv.height=Math.round(innerHeight*dpr);
+  const h=$('#hero'),b=$('#bless'),ht=h.getBoundingClientRect().top+scrollY,hl=h.offsetHeight-innerHeight,bt=b.getBoundingClientRect().top+scrollY,bl=b.offsetHeight-innerHeight;
+  A.y0=ht+hl*.5;A.y1=bt+bl*.78*.1;
+  // where the diya sits once the Ganesha stage is pinned
+  const st=$('#bless .stage'),gz=$('#bless .gzone'),so=st.getBoundingClientRect(),gr=gz.getBoundingClientRect();
+  A.gx=gr.left+gr.width/2;A.gy=gr.top-so.top+gr.height/2;A.dw=DY.w.offsetWidth;A.dh=DY.btn.offsetHeight;}
+ P.measure=measureGL;let tS=0,live=false;
+ P.update=(y,time,dt)=>{if(!P.on)return;const tt=cl((y-A.y0)/Math.max(1,A.y1-A.y0));
+  const k=1-Math.exp(-dt/70),cap=2.2*dt/1000;let st=(tt-tS)*k;if(Math.abs(st)>cap)st=Math.sign(st)*cap;tS+=st;if(Math.abs(tt-tS)<1e-4)tS=tt;
+  const act=tS>.001&&tS<.999;if(act!==live){live=act;cv.classList.toggle('on',act);if(!act){gl.clear(gl.COLOR_BUFFER_BIT)}}
+  if(!act)return;
+  const W=innerWidth,H=innerHeight,mn=Math.min(W,H);
+  gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);gl.useProgram(prog);gl.bindVertexArray(P.vao);
+  gl.uniform2f(U.uRes,W,H);gl.uniform1f(U.uT,tS);gl.uniform1f(U.uTime,time/1000);gl.uniform1f(U.uDpr,dpr);gl.uniform1f(U.uRot,time*.00012+tS*2.4);
+  {const r=hw.getBoundingClientRect();gl.uniform3f(U.uSrc,r.left+r.width/2,r.top+r.height/2,r.width*.5);}  // the dust peels off the real wheel, wherever it is
+  // diya centre: flame base sits on the stage centre; the box is drawn relative to that
+  const dw=A.dw,dh=A.dh,dcx=A.gx-.4545*dw+dw/2,dcy=A.gy-.47*dh+dh/2;
+  gl.uniform4f(U.uTgt,dcx,dcy,dw,dh);
+  gl.drawArrays(gl.POINTS,0,N);};
+ P.start=()=>{build().catch(()=>{P.on=false})};
+ return P})();
 /* ---------- Kaudi Khela ---------- */
 (()=>{const kk=$('#kk');if(!kk)return;const w=$('.kk-water',kk),cw=$('.kk-cowrie',kk),msg=$('.kk-msg',kk),again=$('.kk-again',kk);let K={},busy=false;
  const hide=()=>{const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.36;K={x:.5+Math.cos(a)*r,y:.5+Math.sin(a)*r,n:0,last:null,done:false};cw.style.left=K.x*100+'%';cw.style.top=K.y*100+'%';kk.classList.remove('found');msg.textContent='Tap the water to search'};
@@ -1434,7 +1517,7 @@ const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.m
   if(hr.bottom>vh-2)c='#1c0308';else if(sr.top<vh&&sr.bottom>vh-2)c='#0a0418';else if(sr.bottom<=vh)c='#07051a';
   if(c!==loop._bg){loop._bg=c;document.documentElement.style.background=c;document.body.style.background=c;themeMeta&&themeMeta.setAttribute('content',c)}}
  if(y<(G.bless?G.bless.top+vh:1e9)){HR.w=hw.getBoundingClientRect();HR.l=hnLines.map(e=>e.getBoundingClientRect())}
- rwUpdate(y);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
+ rwUpdate(y);GLP.update(y,t,dt);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
  prog.style.transform=`scaleX(${y/Math.max(1,document.documentElement.scrollHeight-vh)})`;
  for(const s of scenes){const vis=y+vh>s.top-50&&y<s.top+s.len+vh+50;
   if(s.ov){const h=(s.top-y)>1||(s.prev&&s.prev.p<.99&&s.prev.t>=1);if(h!==s.hid){s.hid=h;s.st.style.visibility=h?'hidden':''}}
@@ -1461,7 +1544,7 @@ pre.forEach(src=>{const im=new Image();im.onload=im.onerror=()=>done++;im.src=sr
 history.scrollRestoration='manual';scrollTo(0,0);
 (function step(){const target=Math.min(done/pre.length,(performance.now()-t0)/1400);shown+=(target-shown)*.12;
  const v=Math.round(shown*100);num.textContent=String(v).padStart(3,'0');bar.style.width=v+'%';
- if(v>=99&&done>=pre.length){num.textContent='100';bar.style.width='100%';setTimeout(()=>{document.body.classList.remove('loading');document.body.classList.add('ready');measure();setTimeout(()=>$('#loader').remove(),1300);setTimeout(()=>{hnLines.forEach(e=>e.classList.remove('fade-in'));barEl.style.transition='none';introDone=true},3000)},250);return}
+ if(v>=99&&done>=pre.length){num.textContent='100';bar.style.width='100%';setTimeout(()=>{document.body.classList.remove('loading');document.body.classList.add('ready');measure();GLP.start();setTimeout(()=>$('#loader').remove(),1300);setTimeout(()=>{hnLines.forEach(e=>e.classList.remove('fade-in'));barEl.style.transition='none';introDone=true},3000)},250);return}
  if(performance.now()-t0>9000){done=pre.length}
  requestAnimationFrame(step)})();
 })();
