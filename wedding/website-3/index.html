@@ -358,7 +358,7 @@ body.ready .fade-in{opacity:1;transform:none}
 .rc::after{content:'';position:absolute;z-index:-1;width:70%;aspect-ratio:1;border-radius:50%;left:var(--gx,60%);top:var(--gy,-30%);
   background:radial-gradient(closest-side,var(--gc,#ff5fa2),transparent);opacity:.55;pointer-events:none}
 .rc.on{opacity:1;transform:none}
-.rc .wm{position:absolute;right:-8px;bottom:-22px;font-family:var(--odia);font-weight:700;font-size:5.4rem;line-height:1;color:#fff;opacity:.07;white-space:nowrap}
+.rc .wm{position:absolute;right:20px;bottom:10px;font-family:var(--odia);font-weight:700;font-size:var(--wf,4.6rem);line-height:1.15;color:#fff;opacity:.07;white-space:nowrap}
 .rc .st{font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;font-weight:600;color:var(--gold2);opacity:.9}
 .rc h3{font-family:var(--disp);font-weight:400;font-size:1.75rem;line-height:1.05;margin:8px 0 2px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.25)}
 .rc .o{font-family:var(--odia);font-size:1.15rem;color:var(--gold2)}
@@ -1313,9 +1313,12 @@ function spLine(){const box=$('#sapt .sp-path'),svg=$('#sapt .sp-line');if(!box)
  const pts=$$('.sp-step',box).map(b=>[parseFloat(b.style.left)/100*W,parseFloat(b.style.top)/100*H]);const str=pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
  $$('polyline',svg).forEach(pl=>pl.setAttribute('points',str));const fg=$('.fg',svg),L=fg.getTotalLength();fg.style.strokeDasharray=L;fg.style.strokeDashoffset=L;svg._L=L;
  const seg=[0];for(let i=1;i<pts.length;i++)seg.push(seg[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));svg._seg=seg;}
+scenes.forEach((s,i)=>{s.prev=scenes[i-1]||null});
+// ritual card watermarks: largest size that still sits fully inside the card's border
+function fitWm(){$$('#rit .rc .wm').forEach(w=>{const c=w.parentElement,max=c.clientWidth-40;w.style.setProperty('--wf','4.6rem');const ww=w.scrollWidth;if(ww>max)w.style.setProperty('--wf',(4.6*max/ww).toFixed(3)+'rem')})}
 const G={};function geo(el){const r=el.getBoundingClientRect();return {top:r.top+scrollY,h:el.offsetHeight}}
 function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top=r.top+scrollY;s.len=Math.max(1,s.el.offsetHeight-innerHeight);s.el._top=s.top});
- G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
+ G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
@@ -1412,9 +1415,7 @@ let sT=scrollY,sC=scrollY,smooth=false;
 let AUTO=null;function autoTo(y,ms){y=cl(y,0,document.documentElement.scrollHeight-innerHeight);smooth=false;if(!ms){scrollTo(0,y);AUTO=null;return}AUTO={a:scrollY,b:y,t0:performance.now(),d:ms}}
 ['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{AUTO=null},{passive:true}));
 const maxS=()=>document.documentElement.scrollHeight-innerHeight;
-if(fine&&!RM){addEventListener('wheel',e=>{if(e.ctrlKey||document.body.classList.contains('loading'))return;e.preventDefault();
-  if(!smooth){sT=sC=scrollY}const d=e.deltaY*(e.deltaMode===1?40:e.deltaMode===2?innerHeight:1);sT=cl(sT+d,0,maxS());smooth=true},{passive:false});
- addEventListener('keydown',()=>{smooth=false});addEventListener('pointerdown',()=>{smooth=false});}
+
 const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.min(100,t-(tPrev||t));tPrev=t;tNow=t;requestAnimationFrame(loop);
  if(!LITE&&!document.hidden&&scrollY!==lastY){if(dt>34)slowN++;else fastN++;if(slowN+fastN>=90){if(slowN>36){LITE=true;document.documentElement.classList.add('lite');DPR=1;try{measure()}catch(e){}}slowN=fastN=0}}lastY=scrollY;
  if(AUTO){const k=cl((t-AUTO.t0)/AUTO.d),y2=lerp(AUTO.a,AUTO.b,eio(k));scrollTo(0,y2);sT=sC=y2;if(k>=1)AUTO=null}
@@ -1436,11 +1437,12 @@ const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.m
  rwUpdate(y);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
  prog.style.transform=`scaleX(${y/Math.max(1,document.documentElement.scrollHeight-vh)})`;
  for(const s of scenes){const vis=y+vh>s.top-50&&y<s.top+s.len+vh+50;
-  if(s.ov){const h=(s.top-y)>1;if(h!==s.hid){s.hid=h;s.st.style.visibility=h?'hidden':''}}
+  if(s.ov){const h=(s.top-y)>1||(s.prev&&s.prev.p<.99&&s.prev.t>=1);if(h!==s.hid){s.hid=h;s.st.style.visibility=h?'hidden':''}}
   s.t=cl((y-s.top)/s.len);
   if(vis!==s.live){s.live=vis;s.el.classList.toggle('live',vis)}
   if(!vis&&s.p>=0)continue;
-  const k=RM?1:1-Math.exp(-dt/(smooth?45:90));s.p=s.p<0?s.t:s.p+(s.t-s.p)*k;if(Math.abs(s.t-s.p)<.0002)s.p=s.t;
+  if(RM||s.p<0)s.p=s.t;else{const d=s.t-s.p,k=1-Math.exp(-dt/60),edge=(s.t<=0||s.t>=1)?2.2:1,cap=(2.6*vh/Math.max(vh,s.len))*edge*dt/1000;
+   let st=d*k;if(Math.abs(st)>cap)st=Math.sign(d)*cap;s.p+=st;if(Math.abs(s.t-s.p)<.0002)s.p=s.t;}
   U[s.k](s.p,s.el);
   if(s.f[0])s.f[0].style.opacity=1-seg(s.p,0,.08);if(s.f[1])s.f[1].style.opacity=seg(s.p,.92,1);
   if(s.k==='hero'&&vis&&!RM&&!LITE)drawDust(t);
