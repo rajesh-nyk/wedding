@@ -534,8 +534,6 @@ html.lite #bar span{background:rgba(36,5,12,.85)}
 @media (min-width:900px){.kk{margin-top:calc(var(--svh)*12)}}
 #glp{position:fixed;inset:0;width:100%;height:100%;z-index:45;pointer-events:none;opacity:0;transition:opacity .25s}
 #glp.on{opacity:1}
-#glc{position:fixed;inset:0;width:100%;height:100%;z-index:46;pointer-events:none;display:none}
-#glc.on{display:block}
 /* text people may want to copy: names, dates, venues, ritual notes */
 .ev-info,.ev-info *,#sky .fin,#sky .fin *,#rit .rc p,#rit .rc h3,#hero h1 *{-webkit-user-select:text;user-select:text}
 /* keyboard: clear focus ring, chapter navigation, skip link */
@@ -615,7 +613,6 @@ body.ready #chap.away{opacity:0;pointer-events:none}
 <div id="cur" aria-hidden="true"><i class="ring"><b></b><u></u></i><i class="dot"></i></div>
 <div id="prog"></div>
 <canvas id="glp" aria-hidden="true"></canvas>
-<canvas id="glc" aria-hidden="true"></canvas>
 <a id="skip" href="#events">Skip to the ceremonies</a>
 <nav id="chap" aria-label="Chapters"></nav>
 <div id="bar"><span class="mono">R<b>✦</b>C</span><span class="dt">Odisha · 2027</span></div>
@@ -1324,7 +1321,7 @@ scenes.forEach((s,i)=>{s.prev=scenes[i-1]||null});
 function fitWm(){$$('#rit .rc .wm').forEach(w=>{const c=w.parentElement,max=c.clientWidth-40;w.style.setProperty('--wf','4.6rem');const ww=w.scrollWidth;if(ww>max)w.style.setProperty('--wf',(4.6*max/ww).toFixed(3)+'rem')})}
 const G={};function geo(el){const r=el.getBoundingClientRect();return {top:r.top+scrollY,h:el.offsetHeight}}
 function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top=r.top+scrollY;s.len=Math.max(1,s.el.offsetHeight-innerHeight);s.el._top=s.top});
- G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();if(typeof GLP!=='undefined'&&GLP.measure)GLP.measure();if(typeof CLD!=='undefined')CLD.measure();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
+ G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();if(typeof GLP!=='undefined'&&GLP.measure)GLP.measure();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
@@ -1394,6 +1391,7 @@ const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
   A.ws=Math.min(innerWidth*.62,innerHeight*.44,560);}
  P.measure=measureGL;let tS=0,live=false;
  P.update=(y,time,dt)=>{if(!P.on)return;const tt=cl((y-A.y0)/Math.max(1,A.y1-A.y0));
+  if(Math.abs(tt-tS)>.35)tS=tt;
   const k=1-Math.exp(-dt/70),cap=2*dt/1000;let st=(tt-tS)*k;if(Math.abs(st)>cap)st=Math.sign(st)*cap;tS+=st;if(Math.abs(tt-tS)<1e-4)tS=tt;
   const act=tS>.001&&tS<.999;if(act!==live){live=act;cv.classList.toggle('on',act);if(!act){gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT)}}
   if(!act)return;const W=innerWidth,H=innerHeight,T=tS;
@@ -1407,47 +1405,6 @@ const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
   gl.blendFunc(gl.ONE,gl.ONE);gl.useProgram(ep);gl.bindVertexArray(ev);gl.uniform2f(ue.uRes,W,H);gl.uniform1f(ue.uT,T);gl.uniform1f(ue.uTime,time/1000);gl.uniform1f(ue.uDpr,dpr);
   gl.uniform3f(ue.uFrom,A.wick.x,A.wick.y+ws*.55,ws*.55);gl.uniform2f(ue.uTo,A.wick.x,A.wick.y);gl.drawArrays(gl.POINTS,0,NE);};
  P.start=()=>{build().catch(()=>{P.on=false})};
- return P})();
-/* ---------- clouds between chapters: a bank of warm incense smoke rises through the screen, covers the change, and parts ---------- */
-const CLD=(()=>{const P={on:false,update(){},measure(){}};const cv=$('#glc');let gl=null;
- try{if(!RM)gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:false})}catch(e){}
- if(!gl)return P;
- const VSs=`#version 300 es
- in vec2 aP;out vec2 vU;void main(){vU=aP*.5+.5;gl_Position=vec4(aP,0.,1.);}`;
- const FSs=`#version 300 es
- precision highp float;in vec2 vU;uniform float uV,uTime,uAsp;uniform vec3 uTint;out vec4 o;
- float h2(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
- float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
- float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*vn(p);p=mat2(1.6,1.2,-1.2,1.6)*p+7.3;a*=.5;}return v;}
- void main(){
-  vec2 q=vec2(vU.x*uAsp,vU.y);float t=uTime*.04;
-  vec2 w=vec2(fbm(q*1.6+vec2(t,-t*2.)),fbm(q*1.6+vec2(5.2,1.3)-t));
-  float n=fbm(q*2.2+w*1.4+vec2(0.,-uV*1.6));
-  float n2=fbm(q*5.+w*2.+vec2(3.,-uV*2.5));
-  // the bank: rises from below, fills the screen at the middle of the change, then leaves through the top
-  float y=vU.y+(n-.5)*.62;
-  float lo=mix(-1.5,1.05,uV),hi=lo+1.55;
-  float d=smoothstep(lo,lo+.42,y)*(1.-smoothstep(hi-.42,hi,y));
-  d=clamp(d*1.15,0.,1.);
-  vec3 deep=vec3(.035,.012,.02),body=uTint*.42,lit=mix(uTint,vec3(1.,.82,.58),.55);
-  float sh=smoothstep(.35,.8,n2*.6+n*.6);
-  vec3 c=mix(deep,body,smoothstep(.2,.75,n));c=mix(c,lit,sh*.55*(.4+.6*vU.y));
-  o=vec4(c*d,d);}`;
- const sh=(t,src)=>{const x=gl.createShader(t);gl.shaderSource(x,src);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x};
- let pr;try{pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VSs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FSs));gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0}catch(e){return P}
- const u={};['uV','uTime','uAsp','uTint'].forEach(n=>u[n]=gl.getUniformLocation(pr,n));
- const va=gl.createVertexArray();gl.bindVertexArray(va);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
- const l=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);
- // each change of chapter: where it happens on the page, and the colour of light in the smoke
- const B=[['#moments',[.75,.28,.16]],['#events',[.8,.36,.14]],['.ev-nb',[.82,.16,.22]],['.ev-bh',[.95,.45,.12]],['.ev-rc',[.9,.6,.25]],['#knot',[.6,.22,.55]],['#sapt',[.85,.2,.2]],['#rit',[.8,.3,.4]],['#sky',[.95,.55,.4]]];
- let Y=[];P.measure=()=>{const sc=.42;cv.width=Math.max(2,Math.round(innerWidth*sc));cv.height=Math.max(2,Math.round(innerHeight*sc));
-  Y=B.map(([sel,c])=>{const e=$(sel);return e?{y:e.getBoundingClientRect().top+scrollY,c}:null}).filter(Boolean)};
- P.on=true;let live=false;
- P.update=(y,time)=>{const H=innerHeight,span=H*.7;let v=-1,c=null;
-  for(const k of Y){const r=(y-k.y)/span;if(r>-1&&r<1){v=(r+1)/2;c=k.c;break}}
-  const act=v>0&&v<1;if(act!==live){live=act;cv.classList.toggle('on',act)}if(!act)return;
-  gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(pr);gl.bindVertexArray(va);
-  gl.uniform1f(u.uV,v);gl.uniform1f(u.uTime,time/1000);gl.uniform1f(u.uAsp,innerWidth/innerHeight);gl.uniform3f(u.uTint,c[0],c[1],c[2]);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);};
  return P})();
 /* ---------- Kaudi Khela ---------- */
 (()=>{const kk=$('#kk');if(!kk)return;const w=$('.kk-water',kk),cw=$('.kk-cowrie',kk),msg=$('.kk-msg',kk),again=$('.kk-again',kk);let K={},busy=false;
@@ -1581,14 +1538,14 @@ const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.m
   if(hr.bottom>vh-2)c='#1c0308';else if(sr.top<vh&&sr.bottom>vh-2)c='#0a0418';else if(sr.bottom<=vh)c='#07051a';
   if(c!==loop._bg){loop._bg=c;document.documentElement.style.background=c;document.body.style.background=c;themeMeta&&themeMeta.setAttribute('content',c)}}
  if(y<(G.bless?G.bless.top+vh:1e9)){HR.w=hw.getBoundingClientRect();HR.l=hnLines.map(e=>e.getBoundingClientRect())}
- rwUpdate(y);GLP.update(y,t,dt);CLD.update(y,t);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
+ rwUpdate(y);GLP.update(y,t,dt);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
  prog.style.transform=`scaleX(${y/Math.max(1,document.documentElement.scrollHeight-vh)})`;
  for(const s of scenes){const vis=y+vh>s.top-50&&y<s.top+s.len+vh+50;
   if(s.ov){const h=(s.top-y)>1||(s.prev&&s.prev.p<.99&&s.prev.t>=1);if(h!==s.hid){s.hid=h;s.st.style.visibility=h?'hidden':''}}
   s.t=cl((y-s.top)/s.len);
   if(vis!==s.live){s.live=vis;s.el.classList.toggle('live',vis)}
-  if(!vis&&s.p>=0)continue;
-  if(RM||s.p<0)s.p=s.t;else{const d=s.t-s.p,k=1-Math.exp(-dt/60),edge=(s.t<=0||s.t>=1)?2.2:1,cap=(2.6*vh/Math.max(vh,s.len))*edge*dt/1000;
+  if(!vis&&s.p>=0){s.p=s.t;continue}
+  if(RM||s.p<0||Math.abs(s.t-s.p)>.35)s.p=s.t;else{const d=s.t-s.p,k=1-Math.exp(-dt/60),edge=(s.t<=0||s.t>=1)?2.2:1,cap=(2.6*vh/Math.max(vh,s.len))*edge*dt/1000;
    let st=d*k;if(Math.abs(st)>cap)st=Math.sign(d)*cap;s.p+=st;if(Math.abs(s.t-s.p)<.0002)s.p=s.t;}
   U[s.k](s.p,s.el);
   if(s.f[0])s.f[0].style.opacity=1-seg(s.p,0,.08);if(s.f[1])s.f[1].style.opacity=seg(s.p,.92,1);
