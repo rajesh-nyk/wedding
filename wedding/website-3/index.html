@@ -1159,9 +1159,9 @@ const U={
   const D=DY,now=tNow,dt=Math.min(64,now-(D.t||now));D.t=now;
   if(p<.012&&!D.holding){D.lit=false;D.hold=0}
   if(!D.lit){D.hold=cl(D.hold+(D.holding?dt/1100:-dt/500));if(D.hold>=1)lightDiya();}
-  const sf=eo(seg(p,.1+(GLP.on?.05:0),.16+(GLP.on?.04:0)));if(sf>=1&&!D.lit){D.lit=true}
+  const sf=eo(seg(p,.1+(GLP.on?.07:0),.16+(GLP.on?.056:0)));if(sf>=1&&!D.lit){D.lit=true}
   D.fl=cl((D.fl||0)+(((D.lit?1:Math.max(sf,D.hold*.7)))-(D.fl||0))*Math.min(1,dt/120));
-  const PO=GLP.on?.05:0,fk=Math.max(D.fl,D.lit?1:0),dIn=GLP.on?eo(seg(p,.07,.1)):eo(seg(p,.02,.08)),dOut=seg(p,.3,.42);
+  const PO=GLP.on?.07:0,fk=Math.max(D.fl,D.lit?1:0),dIn=GLP.on?seg(p,.105,.12):eo(seg(p,.02,.08)),dOut=seg(p,.3,.42);
   D.w.style.opacity=(dIn*(1-dOut)).toFixed(3);D.w.style.visibility=dIn*(1-dOut)>0?'visible':'hidden';
   D.w.style.transform=`translate(-45.45%,-47%) scale(${(lerp(.86,1,dIn)*lerp(1,.8,dOut)).toFixed(4)})`;
   D.btn.style.pointerEvents=dIn>.5&&dOut<.2?'auto':'none';
@@ -1325,84 +1325,84 @@ function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
-/* ---------- gold-dust journey (WebGL2): the Konark wheel dissolves and reforms as the diya ---------- */
+/* ---------- molten-gold handover (WebGL2): the wheel's imprint burns into embers, the diya is forged from the same fire ---------- */
 const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
- try{if(!RM)gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:false,powerPreference:'high-performance'})}catch(e){}
+ try{if(!RM)gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:true,powerPreference:'high-performance'})}catch(e){}
  if(!gl)return P;
- const VS=`#version 300 es
- in vec2 aS;in vec2 aT;in vec3 aC;in vec3 aK;in vec4 aR;
- uniform vec2 uRes;uniform float uT,uTime,uDpr,uRot;uniform vec3 uSrc;uniform vec4 uTgt;
- out vec3 vC;out float vA;
- float ez(float x){x=clamp(x,0.,1.);return x<.5?4.*x*x*x:1.-pow(-2.*x+2.,3.)/2.;}
- void main(){
-  float t=uT,mn=min(uRes.x,uRes.y);
-  float c=cos(uRot),s=sin(uRot);vec2 sp=vec2(c*aS.x-s*aS.y,s*aS.x+c*aS.y);
-  float f=ez(t/.16);
-  vec2 src=uSrc.xy+sp*uSrc.z*(1.+.08*(1.-f));
-  vec2 tgt=uTgt.xy+aT*uTgt.zw*.5;
-  float m=ez((t-.34-aR.y*.14)/.42);
-  vec2 p=mix(src,tgt,m);
-  float b=sin(3.14159*clamp((t-.2)/.62,0.,1.));
-  float ang=aR.x*6.2832+uTime*(.35+aR.z*.5)+m*5.;
-  float rad=(.2+aR.w*.8)*mn*.34*b;
-  p+=vec2(cos(ang),sin(ang)*.62)*rad;
-  p+=(aR.zw-.5)*mn*.9*(1.-f);
-  float tw=.75+.25*sin(uTime*2.+aR.x*40.);
-  vA=f*(1.-smoothstep(.9,1.,t))*(.45+.55*aR.y)*tw;
-  vC=mix(mix(aC,aK,m),vec3(1.,.82,.5),b*.45);
-  gl_Position=vec4(p.x/uRes.x*2.-1.,1.-p.y/uRes.y*2.,0.,1.);
-  gl_PointSize=(1.4+aR.z*2.4)*uDpr*(1.+b*.7);
- }`;
- const FS=`#version 300 es
- precision mediump float;in vec3 vC;in float vA;out vec4 o;
- void main(){vec2 d=gl_PointCoord-.5;float r=length(d);float a=smoothstep(.5,.0,r);a*=a;o=vec4(vC*a*vA,a*vA);}`;
  const sh=(t,src)=>{const x=gl.createShader(t);gl.shaderSource(x,src);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x};
- let prog;try{prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw 0}catch(e){return P}
- const U={};['uRes','uT','uTime','uDpr','uRot','uSrc','uTgt'].forEach(n=>U[n]=gl.getUniformLocation(prog,n));
- const N=LITE?4000:(innerWidth<700?8000:14000);
- // pick N points (shape coords -1..1, colour) from the opaque pixels of a drawn image
- function sample(img,w,h,keep,extra){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);
-  const d=x.getImageData(0,0,w,h).data,ok=[];for(let i=0;i<w*h;i++){const a=d[i*4+3];if(a>140&&keep(d[i*4],d[i*4+1],d[i*4+2]))ok.push(i)}
-  const S=new Float32Array(N*2),C=new Float32Array(N*3);for(let k=0;k<N;k++){
-   if(extra&&k<extra.n){const a=Math.random()*6.283,r=Math.random()*extra.r;S[k*2]=extra.x+Math.cos(a)*r;S[k*2+1]=extra.y+Math.sin(a)*r*1.6;C.set(extra.c,k*3);continue}
-   const i=ok[(Math.random()*ok.length)|0],px=i%w,py=(i/w)|0;S[k*2]=(px+Math.random())/w*2-1;S[k*2+1]=(py+Math.random())/h*2-1;
-   const r=d[i*4]/255,g=d[i*4+1]/255,bb=d[i*4+2]/255,l=Math.max(r,g,bb)||1,bo=Math.min(1.6,1/l);C[k*3]=Math.min(1,r*bo*1.1);C[k*3+1]=Math.min(1,g*bo*.95);C[k*3+2]=Math.min(1,bb*bo*.8)}
-  return {S,C}}
+ const mk=(vs,fs)=>{const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw 0;return p};
+ const NOISE=`float h2(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+  float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
+  float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*vn(p);p=p*2.03+17.1;a*=.5;}return v;}`;
+ // an image that burns away (dir=1) or is forged in (dir=-1) along a glowing molten edge
+ const QVS=`#version 300 es
+ in vec2 aP;uniform vec4 uBox;uniform vec2 uRes;out vec2 vUv;
+ void main(){vUv=aP;vec2 p=uBox.xy+(aP-.5)*uBox.zw;gl_Position=vec4(p.x/uRes.x*2.-1.,1.-p.y/uRes.y*2.,0.,1.);}`;
+ const QFS=`#version 300 es
+ precision highp float;in vec2 vUv;uniform sampler2D uTex;uniform float uK,uSeed,uA;out vec4 o;
+ ${NOISE}
+ void main(){vec4 c=texture(uTex,vUv);
+  float n=fbm(vUv*4.2+uSeed)*.78+.22*(1.-length(vUv-.5)*1.4);
+  float th=mix(.3,.78,uK), d=n-th;
+  float keep=smoothstep(0.,.012,d);
+  float rim=(1.-smoothstep(0.,.07,d))*step(-.004,d)*step(.02,uK);
+  float hot=(1.-smoothstep(0.,.022,d))*step(-.004,d);
+  vec3 ember=mix(vec3(1.,.36,.05),vec3(1.,.86,.48),hot);
+  float a=c.a;
+  vec3 col=c.rgb*keep+ember*rim*a*1.6;
+  o=vec4(col,a*max(keep,rim))*uA;}`;
+ // embers: a few dozen sharp sparks, not dust
+ const EVS=`#version 300 es
+ in vec4 aR;uniform vec2 uRes;uniform float uT,uTime,uDpr;uniform vec3 uFrom;uniform vec2 uTo;out float vA;out float vH;
+ void main(){float born=.06+aR.x*.36, life=clamp((uT-born)/(.5-aR.y*.12),0.,1.);
+  float an=aR.z*6.2832;vec2 st=uFrom.xy+vec2(cos(an),sin(an))*uFrom.z*sqrt(aR.w)*.9;
+  vec2 up=st+vec2(sin(uTime*.9+aR.x*20.)*40.*life,-uFrom.z*1.3*life);
+  float g=smoothstep(.45,1.,life);
+  vec2 p=mix(up,uTo,g*g);
+  vA=smoothstep(0.,.08,life)*(1.-smoothstep(.85,1.,life))*step(born,uT);
+  vH=aR.y;
+  gl_Position=vec4(p.x/uRes.x*2.-1.,1.-p.y/uRes.y*2.,0.,1.);
+  gl_PointSize=(3.+aR.y*7.)*uDpr*(1.-g*.5);}`;
+ const EFS=`#version 300 es
+ precision highp float;in float vA;in float vH;out vec4 o;
+ void main(){float r=length(gl_PointCoord-.5)*2.;float core=1.-smoothstep(0.,.32,r);float halo=pow(1.-smoothstep(0.,1.,r),2.4);
+  vec3 c=mix(vec3(1.,.45,.08),vec3(1.,.93,.72),core);float a=(core+halo*.55)*vA;o=vec4(c*a,a);}`;
+ let qp,ep;try{qp=mk(QVS,QFS);ep=mk(EVS,EFS)}catch(e){return P}
+ const uq={},ue={};['uBox','uRes','uTex','uK','uSeed','uA'].forEach(n=>uq[n]=gl.getUniformLocation(qp,n));['uRes','uT','uTime','uDpr','uFrom','uTo'].forEach(n=>ue[n]=gl.getUniformLocation(ep,n));
+ const NE=LITE?40:90;
+ const qv=gl.createVertexArray();gl.bindVertexArray(qv);{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,0,1,0,0,1,1,1]),gl.STATIC_DRAW);const l=gl.getAttribLocation(qp,'aP');gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0)}
+ const ev=gl.createVertexArray();gl.bindVertexArray(ev);{const R=new Float32Array(NE*4);for(let i=0;i<R.length;i++)R[i]=Math.random();const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,R,gl.STATIC_DRAW);const l=gl.getAttribLocation(ep,'aR');gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,4,gl.FLOAT,false,0,0)}
+ const tex=src=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src);gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t};
  const load=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src});
- async function build(){
-  const wheel=await load('wheel-sm.webp');
-  const ws=sample(wheel,240,240,(r,g,b)=>r+g+b>200);
-  // the diya bowl, drawn from the page's own diya artwork (flame, glow and ring left out); a little ember waits at the wick
-  const svg=$('#bless .diya svg').cloneNode(true);svg.querySelectorAll('.dy-flame,.dy-glow,.dy-ring,ellipse[opacity]').forEach(e=>e.remove());
-  svg.setAttribute('width','440');svg.setAttribute('height','340');svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
-  const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
-  const di=await load(url);URL.revokeObjectURL(url);
-  const ds=sample(di,220,170,()=>true,{n:(N*.06)|0,x:100/110-1,y:76/85-1,r:.035,c:[1,.86,.5]});
-  const R=new Float32Array(N*4);for(let i=0;i<N*4;i++)R[i]=Math.random();
-  const vao=gl.createVertexArray();gl.bindVertexArray(vao);
-  [['aS',ws.S,2],['aT',ds.S,2],['aC',ws.C,3],['aK',ds.C,3],['aR',R,4]].forEach(([n,data,sz])=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);const l=gl.getAttribLocation(prog,n);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0)});
-  P.vao=vao;P.on=true;measureGL();}
- let A={y0:0,y1:1,gx:0,gy:0,dw:0,dh:0},dpr=1;
- function measureGL(){if(!P.on)return;dpr=Math.min(devicePixelRatio||1,LITE?1:2);cv.width=Math.round(innerWidth*dpr);cv.height=Math.round(innerHeight*dpr);
+ let TW=null,TD=null,dpr=1,A={};
+ async function diyaTex(){// the bowl exactly as the page draws it, rendered at this screen's full pixel density
+  const svg=$('#bless .diya svg').cloneNode(true);svg.querySelectorAll('.dy-flame,.dy-glow,.dy-ring').forEach(e=>e.remove());
+  const w=Math.round(DY.btn.offsetWidth*dpr*1.25),h=Math.round(w*170/220);svg.setAttribute('width',w);svg.setAttribute('height',h);svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));const im=await load(url);URL.revokeObjectURL(url);
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);return c}
+ async function build(){dpr=Math.min(devicePixelRatio||1,LITE?1.5:3);TD=tex(await diyaTex());P.on=true;measureGL()}
+ function measureGL(){if(!P.on)return;dpr=Math.min(devicePixelRatio||1,LITE?1.5:3);cv.width=Math.round(innerWidth*dpr);cv.height=Math.round(innerHeight*dpr);
   const h=$('#hero'),b=$('#bless'),ht=h.getBoundingClientRect().top+scrollY,hl=h.offsetHeight-innerHeight,bt=b.getBoundingClientRect().top+scrollY,bl=b.offsetHeight-innerHeight;
-  A.y0=ht+hl*.5;A.y1=bt+bl*.78*.1;
-  // where the diya sits once the Ganesha stage is pinned
+  A.y0=ht+hl*.42;A.y1=bt+bl*.78*.12;
   const st=$('#bless .stage'),gz=$('#bless .gzone'),so=st.getBoundingClientRect(),gr=gz.getBoundingClientRect();
-  A.gx=gr.left+gr.width/2;A.gy=gr.top-so.top+gr.height/2;A.dw=DY.w.offsetWidth;A.dh=DY.btn.offsetHeight;}
+  const dw=DY.btn.offsetWidth,dh=DY.btn.offsetHeight,gx=gr.left+gr.width/2,gy=gr.top-so.top+gr.height/2;
+  A.dx=gx-.4545*dw+dw/2;A.dy=gy-.47*dh+dh/2;A.dw=dw;A.dh=dh;A.wick={x:gx,y:gy};
+  A.ws=Math.min(innerWidth*.62,innerHeight*.44,560);}
  P.measure=measureGL;let tS=0,live=false;
  P.update=(y,time,dt)=>{if(!P.on)return;const tt=cl((y-A.y0)/Math.max(1,A.y1-A.y0));
-  const k=1-Math.exp(-dt/70),cap=2.2*dt/1000;let st=(tt-tS)*k;if(Math.abs(st)>cap)st=Math.sign(st)*cap;tS+=st;if(Math.abs(tt-tS)<1e-4)tS=tt;
-  const act=tS>.001&&tS<.999;if(act!==live){live=act;cv.classList.toggle('on',act);if(!act){gl.clear(gl.COLOR_BUFFER_BIT)}}
-  if(!act)return;
-  const W=innerWidth,H=innerHeight,mn=Math.min(W,H);
-  gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);gl.useProgram(prog);gl.bindVertexArray(P.vao);
-  gl.uniform2f(U.uRes,W,H);gl.uniform1f(U.uT,tS);gl.uniform1f(U.uTime,time/1000);gl.uniform1f(U.uDpr,dpr);gl.uniform1f(U.uRot,time*.00012+tS*2.4);
-  {const r=hw.getBoundingClientRect();gl.uniform3f(U.uSrc,r.left+r.width/2,r.top+r.height/2,r.width*.5);}  // the dust peels off the real wheel, wherever it is
-  // diya centre: flame base sits on the stage centre; the box is drawn relative to that
-  const dw=A.dw,dh=A.dh,dcx=A.gx-.4545*dw+dw/2,dcy=A.gy-.47*dh+dh/2;
-  gl.uniform4f(U.uTgt,dcx,dcy,dw,dh);
-  gl.drawArrays(gl.POINTS,0,N);};
+  const k=1-Math.exp(-dt/70),cap=2*dt/1000;let st=(tt-tS)*k;if(Math.abs(st)>cap)st=Math.sign(st)*cap;tS+=st;if(Math.abs(tt-tS)<1e-4)tS=tt;
+  const act=tS>.001&&tS<.999;if(act!==live){live=act;cv.classList.toggle('on',act);if(!act){gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT)}}
+  if(!act)return;const W=innerWidth,H=innerHeight,T=tS;
+  gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  const wx=W/2,wy=H*.46,ws=A.ws;
+  gl.useProgram(qp);gl.bindVertexArray(qv);gl.uniform2f(uq.uRes,W,H);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(uq.uTex,0);
+  // embers rise as the screen falls dark, then the diya is forged from molten gold
+  // 3 the diya is forged out of the same molten edge, exactly where the real one waits
+  if(T>.38){gl.bindTexture(gl.TEXTURE_2D,TD);gl.uniform4f(uq.uBox,A.dx,A.dy,A.dw,A.dh);gl.uniform1f(uq.uK,1-seg(T,.44,.86));gl.uniform1f(uq.uSeed,8.7);gl.uniform1f(uq.uA,1);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}
+  // 2 embers rise from the burning wheel and drift to the wick
+  gl.blendFunc(gl.ONE,gl.ONE);gl.useProgram(ep);gl.bindVertexArray(ev);gl.uniform2f(ue.uRes,W,H);gl.uniform1f(ue.uT,T);gl.uniform1f(ue.uTime,time/1000);gl.uniform1f(ue.uDpr,dpr);
+  gl.uniform3f(ue.uFrom,A.wick.x,A.wick.y+ws*.55,ws*.55);gl.uniform2f(ue.uTo,A.wick.x,A.wick.y);gl.drawArrays(gl.POINTS,0,NE);};
  P.start=()=>{build().catch(()=>{P.on=false})};
  return P})();
 /* ---------- Kaudi Khela ---------- */
