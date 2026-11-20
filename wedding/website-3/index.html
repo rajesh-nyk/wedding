@@ -128,6 +128,8 @@ body.ready .fade-in{opacity:1;transform:none}
 #bless .gwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 #bless .gsk{filter:sepia(1) saturate(2) hue-rotate(-20deg) brightness(.55);opacity:0}
 #bless .gcol{clip-path:circle(0% at 50% 55%)}
+#bless .g3{position:absolute;left:-14%;top:-10%;width:128%;height:120%;pointer-events:none;display:none}
+#bless.g3on .g3{display:block}#bless.g3on .gsk,#bless.g3on .gcol{visibility:hidden}
 #bless .aura{position:absolute;left:50%;top:50%;width:80vmax;aspect-ratio:1;z-index:0;border-radius:50%;transform:translate(-50%,-50%) scale(0);opacity:0;will-change:transform,opacity;
   background:radial-gradient(closest-side,rgba(255,214,120,.95) 0,rgba(255,150,40,.75) 14%,rgba(255,100,10,.45) 30%,rgba(200,50,0,.2) 48%,rgba(120,20,0,0) 68%);mix-blend-mode:screen}
 #bless .raysw{position:absolute;left:50%;top:50%;width:0;height:0;z-index:1;opacity:0;will-change:transform,opacity}
@@ -683,6 +685,7 @@ body.ready #chap.away{opacity:0;pointer-events:none}
       <div class="gwrap">
         <img class="gsk" src="ganesha-sketch.webp" alt="">
         <img class="gcol" src="ganesha.webp" alt="Lord Ganesha">
+        <canvas class="g3" aria-hidden="true"></canvas>
       </div>
     </div>
     <div class="txt bot"><p class="msg" id="blessMsg">With the blessings of Lord Ganesha and our families, we invite you to celebrate with us.</p></div>
@@ -1176,6 +1179,7 @@ const U={
   // 5 the lines burst out
   const rk=eo(seg(p,.32,.48));raysw.style.opacity=rk;raysw.style.transform=`scale(${lerp(.3,1,rk)}) rotate(${(1-rk)*-40}deg)`;
   // 6 Ganesha: outline, then colour
+  G3.draw(p,tNow);
   gsk.style.opacity=.55*seg(p,.42,.5)*(1-seg(p,.62,.72));
   const r=eo(seg(p,.5,.7));gcol.style.clipPath=`circle(${r*75}% at 50% 55%)`;
   gwrap.style.transform=`scale(${lerp(.9,1.03,eo(seg(p,.42,.75)))})`;
@@ -1406,6 +1410,71 @@ const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
   gl.uniform3f(ue.uFrom,A.wick.x,A.wick.y+ws*.55,ws*.55);gl.uniform2f(ue.uTo,A.wick.x,A.wick.y);gl.drawArrays(gl.POINTS,0,NE);};
  P.start=()=>{build().catch(()=>{P.on=false})};
  return P})();
+/* Lord Ganesha in 3D: a small WebGL2 renderer for the site's own compact mesh format */
+const G3D=function(cv,opt){opt=opt||{};
+ const gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:true,powerPreference:'high-performance'});if(!gl)return null;
+ const VS=`#version 300 es
+ in vec3 aP;in vec3 aN;in vec2 aU;uniform mat4 uM,uVP;uniform vec3 uMin,uMax;out vec3 vW;out vec3 vN;out vec2 vU;
+ void main(){vec3 p=uMin+aP*(uMax-uMin);vec4 w=uM*vec4(p,1.);vW=w.xyz;vN=mat3(uM)*aN;vU=vec2(aU.x,aU.y);gl_Position=uVP*w;}`;
+ const FS=`#version 300 es
+ precision highp float;in vec3 vW;in vec3 vN;in vec2 vU;uniform sampler2D uB;uniform vec3 uEye,uKey,uKeyC,uRim,uRimC,uAmb;uniform float uExp,uReveal;out vec4 o;
+ vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+ void main(){vec3 al=pow(texture(uB,vU).rgb,vec3(2.2));vec3 sa=pow(al,vec3(1./2.2));float gold=smoothstep(.18,.42,sa.r-sa.b)*smoothstep(.12,.3,sa.g-sa.b)*smoothstep(.35,.6,sa.r);float met=gold*.7,rough=mix(.62,.32,gold);
+  vec3 n=normalize(vN);if(!gl_FrontFacing)n=-n;vec3 v=normalize(uEye-vW);
+  vec3 col=uAmb*al*(.45+.55*clamp(n.y*.5+.5,0.,1.));
+  for(int i=0;i<2;i++){vec3 L=normalize(i==0?uKey:uRim);vec3 C=i==0?uKeyC:uRimC;
+   float nl=max(dot(n,L),0.),w=pow(max((dot(n,L)+.12)/1.12,0.),1.3);vec3 h=normalize(L+v);float sp=pow(max(dot(n,h),0.),mix(90.,8.,rough))*mix(.5,.06,rough);
+   vec3 f0=mix(vec3(.04),al,met);col+=C*(al*(1.-met*.75)*w+f0*sp*(nl>0.?1.:0.)*3.);}
+  float fr=pow(1.-max(dot(n,v),0.),3.);col+=uRimC*fr*.25*al;
+  col=aces(col*uExp);col=pow(col,vec3(1./2.2));
+  o=vec4(col*uReveal,uReveal);}`;
+ const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x};
+ const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
+ const U={};['uM','uVP','uMin','uMax','uB','uEye','uKey','uKeyC','uRim','uRimC','uAmb','uExp','uReveal'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
+ const S={ready:false,yaw:0,pitch:0,reveal:1,exp:.95};let cnt=0,mn,mx;
+ const tex=(img,mip)=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  const ext=gl.getExtension('EXT_texture_filter_anisotropic');if(ext)gl.texParameterf(gl.TEXTURE_2D,ext.TEXTURE_MAX_ANISOTROPY_EXT,8);return t};
+ const img=s=>new Promise((r,j)=>{const i=new Image();i.decoding='async';i.onload=()=>r(i);i.onerror=j;i.src=s});
+ let TB;
+ S.load=async(base)=>{const [buf,b]=await Promise.all([fetch(opt.mesh||'ganesha.bin').then(x=>{if(!x.ok)throw 0;return x.arrayBuffer()}),img(base)]);
+  const hl=new DataView(buf).getUint32(0,true),h=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,4,hl)));let o=4+hl;
+  const vao=gl.createVertexArray();gl.bindVertexArray(vao);
+  const att=(name,data,size,type,norm,stride)=>{const bb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bb);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);const l=gl.getAttribLocation(pr,name);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,type,norm,stride||0,0)};
+  att('aP',new Uint16Array(buf,o,h.v*3),3,gl.UNSIGNED_SHORT,true);o+=h.v*6;
+  att('aN',new Int8Array(buf,o,h.v*4),3,gl.BYTE,true,4);
+  o+=h.v*4;att('aU',new Uint16Array(buf,o,h.v*2),2,gl.UNSIGNED_SHORT,true);o+=h.v*4;
+  const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint32Array(buf,o,h.t*3),gl.STATIC_DRAW);
+  cnt=h.t*3;mn=h.min;mx=h.max;TB=tex(b);S.vao=vao;S.ready=true;};
+ const mul=(a,b)=>{const r=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];r[i*4+j]=s}return r};
+ S.draw=(dpr)=>{if(!S.ready)return;const W=cv.clientWidth,H=cv.clientHeight,w=Math.round(W*dpr),h=Math.round(H*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
+  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
+  gl.useProgram(pr);gl.bindVertexArray(S.vao);
+  const cy=Math.cos(S.yaw),sy=Math.sin(S.yaw),cp=Math.cos(S.pitch),sp=Math.sin(S.pitch);
+  // model: centred, height 2 units
+  const c=[(mn[0]+mx[0])/2,(mn[1]+mx[1])/2,(mn[2]+mx[2])/2],sc=2/(mx[1]-mn[1]);
+  const R=[cy,sp*sy,-cp*sy,0, 0,cp,sp,0, sy,-sp*cy,cp*cy,0, 0,0,0,1];
+  const T=[sc,0,0,0,0,sc,0,0,0,0,sc,0,-c[0]*sc,-c[1]*sc,-c[2]*sc,1];
+  const M=mul(R,T);
+  const ez=opt.dist||5.2,f=1/Math.tan((opt.fov||26)*Math.PI/360),asp=w/h,n=.1,fa=50;
+  const Pm=[f/asp,0,0,0,0,f,0,0,0,0,(fa+n)/(n-fa),-1,0,0,2*fa*n/(n-fa),0];const V=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,-ez,1];
+  gl.uniformMatrix4fv(U.uM,false,M);gl.uniformMatrix4fv(U.uVP,false,mul(Pm,V));gl.uniform3fv(U.uMin,mn);gl.uniform3fv(U.uMax,mx);gl.uniform3f(U.uEye,0,0,ez);
+  gl.uniform3f(U.uKey,-.55,-.35,.85);gl.uniform3f(U.uKeyC,1.55,1.05,.62);gl.uniform3f(U.uRim,.85,.75,-.5);gl.uniform3f(U.uRimC,1.25,.72,.35);gl.uniform3f(U.uAmb,.16,.09,.1);
+  gl.uniform1f(U.uExp,S.exp);gl.uniform1f(U.uReveal,S.reveal);
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,TB);gl.uniform1i(U.uB,0);
+  gl.drawElements(gl.TRIANGLES,cnt,gl.UNSIGNED_INT,0);};
+ return S};
+
+/* Lord Ganesha in 3D: loads quietly after the page is ready; until then (or without WebGL) the painted Ganesha is shown */
+const G3=(()=>{const P={ok:false,draw(){}};if(RM)return P;const cv=$('#bless .g3');let r=null;
+ P.start=()=>{try{r=G3D(cv,{mesh:'ganesha.bin',dist:6.1})}catch(e){r=null}if(!r)return;
+  const big=innerWidth>=900&&!LITE&&(devicePixelRatio||1)>=1.5;
+  r.load(big?'g-base-4k.jpg':'g-base-2k.jpg').then(()=>{P.ok=true;$('#bless').classList.add('g3on')}).catch(()=>{})};
+ P.draw=(p,t)=>{if(!P.ok)return;const k=eo(seg(p,.46,.68));r.reveal=k;
+  const f=matchMedia('(pointer:fine)').matches,px=f?(cx/innerWidth-.5):0,py=f?(cy/innerHeight-.5):0;P.px=(P.px||0)+(px-(P.px||0))*.06;P.py=(P.py||0)+(py-(P.py||0))*.06;
+  r.yaw=lerp(.9,0,eio(seg(p,.46,.82)))+Math.sin(t*.00045)*.07+P.px*.32;r.pitch=-.04+P.py*.1;
+  if(k>0)r.draw(Math.min(devicePixelRatio||1,LITE?1.25:2));};
+ if(!P.start)P.start=()=>{};return P})();
 /* ---------- Kaudi Khela ---------- */
 (()=>{const kk=$('#kk');if(!kk)return;const w=$('.kk-water',kk),cw=$('.kk-cowrie',kk),msg=$('.kk-msg',kk),again=$('.kk-again',kk);let K={},busy=false;
  const hide=()=>{const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.36;K={x:.5+Math.cos(a)*r,y:.5+Math.sin(a)*r,n:0,last:null,done:false};cw.style.left=K.x*100+'%';cw.style.top=K.y*100+'%';kk.classList.remove('found');msg.textContent='Tap the water to search'};
@@ -1565,7 +1634,7 @@ pre.forEach(src=>{const im=new Image();im.onload=im.onerror=()=>done++;im.src=sr
 history.scrollRestoration='manual';scrollTo(0,0);
 (function step(){const target=Math.min(done/pre.length,(performance.now()-t0)/1400);shown+=(target-shown)*.12;
  const v=Math.round(shown*100);num.textContent=String(v).padStart(3,'0');bar.style.width=v+'%';
- if(v>=99&&done>=pre.length){num.textContent='100';bar.style.width='100%';setTimeout(()=>{document.body.classList.remove('loading');document.body.classList.add('ready');measure();GLP.start();setTimeout(()=>$('#loader').remove(),1300);setTimeout(()=>{hnLines.forEach(e=>e.classList.remove('fade-in'));barEl.style.transition='none';introDone=true},3000)},250);return}
+ if(v>=99&&done>=pre.length){num.textContent='100';bar.style.width='100%';setTimeout(()=>{document.body.classList.remove('loading');document.body.classList.add('ready');measure();GLP.start();setTimeout(()=>G3.start&&G3.start(),1200);setTimeout(()=>$('#loader').remove(),1300);setTimeout(()=>{hnLines.forEach(e=>e.classList.remove('fade-in'));barEl.style.transition='none';introDone=true},3000)},250);return}
  if(performance.now()-t0>9000){done=pre.length}
  requestAnimationFrame(step)})();
 })();
