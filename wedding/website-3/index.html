@@ -212,11 +212,12 @@ body.ready .fade-in{opacity:1;transform:none}
 .ev-head .ban img{width:100%;display:block}
 .ev-head p{font-family:var(--ital);font-size:1.25rem;color:#5a1a20;margin-top:10px}
 .event{height:calc(var(--svh)*330)}.ev-bh,.ev-rc{margin-top:calc(var(--svh)*-100)}
-.event .stage{display:grid;place-items:center}
-.ev-nb .stage{background:radial-gradient(55% 50% at 50% 50%,rgba(210,30,60,.42) 0,rgba(120,8,30,.28) 35%,transparent 72%),radial-gradient(110% 60% at 50% 115%,rgba(120,8,30,.28),transparent 60%),#000}
-.ev-bh .stage{background:radial-gradient(55% 50% at 50% 50%,rgba(255,120,20,.42) 0,rgba(170,50,0,.28) 35%,transparent 72%),radial-gradient(110% 60% at 50% 115%,rgba(170,50,0,.28),transparent 60%),#000}
-.ev-rc .stage{background:radial-gradient(38% 46% at 50% 50%,rgba(255,190,80,.30) 0,rgba(200,110,30,.14) 45%,transparent 75%),radial-gradient(60% 55% at 50% 50%,rgba(150,20,40,.45) 0,rgba(90,8,24,.28) 40%,transparent 75%),radial-gradient(110% 60% at 50% 115%,rgba(120,10,30,.32),transparent 60%),#000}
-.event .rays{top:50%;opacity:.16;mix-blend-mode:screen}
+.event .stage{display:grid;place-items:center;background:#000}
+.event .stage::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:var(--bgk,1)}
+.ev-nb .stage::before{background:radial-gradient(55% 50% at 50% 50%,rgba(210,30,60,.42) 0,rgba(120,8,30,.28) 35%,transparent 72%),radial-gradient(110% 60% at 50% 115%,rgba(120,8,30,.28),transparent 60%)}
+.ev-bh .stage::before{background:radial-gradient(55% 50% at 50% 50%,rgba(255,120,20,.42) 0,rgba(170,50,0,.28) 35%,transparent 72%),radial-gradient(110% 60% at 50% 115%,rgba(170,50,0,.28),transparent 60%)}
+.ev-rc .stage::before{background:radial-gradient(38% 46% at 50% 50%,rgba(255,190,80,.30) 0,rgba(200,110,30,.14) 45%,transparent 75%),radial-gradient(60% 55% at 50% 50%,rgba(150,20,40,.45) 0,rgba(90,8,24,.28) 40%,transparent 75%),radial-gradient(110% 60% at 50% 115%,rgba(120,10,30,.32),transparent 60%)}
+.event .rays{top:50%;opacity:calc(.16*var(--bgk,1));mix-blend-mode:screen}
 .event .giant{-webkit-text-stroke-color:rgba(255,226,170,.16)!important}
 .giant{position:absolute;top:50%;left:0;white-space:nowrap;font-family:var(--disp);font-size:clamp(7rem,30vw,22rem);line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,230,180,.24);z-index:0;will-change:transform,opacity;pointer-events:none;opacity:0}
 .ev-num{display:none;position:absolute;top:max(calc(var(--svh)*8),104px);left:22px;z-index:4;font-size:.66rem;letter-spacing:.36em;text-transform:uppercase;color:var(--gold2)}
@@ -285,7 +286,7 @@ body.ready .fade-in{opacity:1;transform:none}
 }
 
 /* ---------- KNOT + RITUALS ---------- */
-#knot{height:calc(var(--svh)*330)}
+#knot{height:calc(var(--svh)*330);margin-top:calc(var(--svh)*-100)}
 #knot .stage{background:radial-gradient(60% 45% at 50% 58%,rgba(255,150,60,.16),transparent 70%),radial-gradient(70% 50% at 50% 60%,rgba(140,40,160,.28),transparent 70%),linear-gradient(#000,#05010a 40%,#0d0212 70%,#000 100%);display:flex;flex-direction:column;align-items:center;padding:calc(var(--svh)*11) 0 calc(var(--svh)*4)}
 .khead{text-align:center;padding:0 20px;position:relative;z-index:2}
 .khead .or{font-family:var(--odia);font-size:clamp(2.2rem,9vw,4.4rem);color:var(--gold);line-height:1.2}
@@ -1223,28 +1224,29 @@ const U={
  event(p,el){
   const S=el._s||(el._s={card:$('.card',el),giant:$('.giant',el),info:$('.ev-info',el),num:$('.ev-num',el),
    top:$$('.lay[data-g=top]',el),hero:$$('.lay[data-g=hero]',el),floor:$$('.lay[data-g=floor]',el),its:$$('.it',el),letters:$$('.it-t span',el),shine:$('.shine',el),glow:$('.glow',el)});
-  const a=eo(seg(p,0,.28)),desk=isDesk(),fin=eio(seg(p,.54,.7));
+  const a=eo(seg(p,0,.28)),desk=isDesk(),fin=eio(seg(p,.54,.7)),ex=eio(seg(p,.84,1));
+  el._st=el._st||$('.stage',el);el._st.style.setProperty('--bgk',(eio(seg(p,0,.14))*(1-eio(seg(p,.86,1)))).toFixed(3));
   // on wide screens slide the card far enough left that it always clears the text column, hover lift included
   let shift=-20;if(desk){const vw=innerWidth,infoL=vw-vw*.07-Math.min(vw*.34,440),cw=S.card.offsetWidth*1.06,want=Math.min(vw*.3,infoL-56-cw/2);shift=(want-vw/2)/vw*100;}
   const cx=desk?lerp(0,shift,fin):0,cy=desk?0:lerp(0,-7.5,fin),cs=desk?1:lerp(1,.8,fin);
   // hover: the invitation lifts and tilts toward the pointer, with a light spot following it
-  const C=S.card,hv=C._hv=(C._hv||0)+((C._hov?1:0)-(C._hv||0))*.14;let hx=0,hy=0;
+  const C=S.card,hv=C._hv=(C._hv||0)+((C._hov&&ex<.01?1:0)-(C._hv||0))*.14;let hx=0,hy=0;
   if(hv>.001&&RW.dx!=null){const r=C.getBoundingClientRect();hx=cl((RW.dx-(r.left+r.width/2))/(r.width/2),-1,1);hy=cl((RW.dy-(r.top+r.height/2))/(r.height/2),-1,1);
    C.style.setProperty('--mx',((hx+1)*50).toFixed(1)+'%');C.style.setProperty('--my',((hy+1)*50).toFixed(1)+'%');}
-  S.card.style.transform=`translate(${cx}vw,${cy}vh) translateY(${(1-a)*24}vh) perspective(1400px) rotateY(${((1-a)*-78+hx*9*hv).toFixed(2)}deg) rotateX(${((1-a)*8-hy*7*hv).toFixed(2)}deg) scale(${(lerp(.86,1,a)*cs*(1+.05*hv)).toFixed(4)})`;
-  S.card.style.opacity=seg(p,0,.06);
-  S.giant.style.opacity=seg(p,0,.14)*(1-seg(p,.92,1));
+  S.card.style.transform=`translate(${(cx-ex*(desk?14:22)).toFixed(2)}vw,${(cy-ex*6).toFixed(2)}vh) translateY(${(1-a)*24}vh) perspective(1400px) rotateY(${((1-a)*-78+ex*62+hx*9*hv).toFixed(2)}deg) rotateX(${((1-a)*8+ex*4-hy*7*hv).toFixed(2)}deg) scale(${(lerp(.86,1,a)*cs*(1-ex*.14)*(1+.05*hv)).toFixed(4)})`;
+  S.card.style.opacity=(seg(p,0,.06)*(1-eio(seg(p,.9,1)))).toFixed(3);
+  S.giant.style.opacity=seg(p,0,.14)*(1-seg(p,.84,.97));
   S.giant.style.transform=`translate(${lerp(-45,-12,p)}%,-50%)`;
-  S.num.style.opacity=seg(p,.05,.2);
+  S.num.style.opacity=seg(p,.05,.2)*(1-seg(p,.84,.94));
   S.its.forEach((e,i)=>{const k=eo(seg(p,.28+i*.018,.36+i*.018));e.style.opacity=k;e.style.transform=`translateY(-50%) scale(${lerp(.94,1,k)})`});
   S.letters.forEach((e,i)=>{const k=eo(seg(p,.3+i*.008,.38+i*.008));e.style.opacity=k;e.style.filter=LITE?'':`blur(${(1-k)*4}px)`});
   S.shine.style.backgroundPosition=`${lerp(110,-10,seg(p,.45,.7))}% 0`;
-  const ik=eo(seg(p,.7,.82));S.info.style.opacity=ik;
+  const ik=eo(seg(p,.7,.82))*(1-eio(seg(p,.82,.92)));S.info.style.opacity=ik;
   S.info.style.transform=desk?`translateY(-50%) translateX(${(1-ik)*40}px)`:`translateY(${(1-ik)*24}px)`;
  },
  knot(p,el){
   const K=el._k||(el._k={hb:$('.hand-b',el),hg:$('.hand-g',el),thr:$$('.thr',el),tas:$('.tassel',el),glow:$('.knot-glow',el),mand:$('.kn-mandw',el),kc:$$('.kc',el)});
-  {const st=el._st||(el._st=$('.stage',el));st.style.opacity=(1-eio(seg(p,.9,.985))).toFixed(3)}
+  {const st=el._st||(el._st=$('.stage',el));st.style.opacity=(eio(seg(p,0,.06))*(1-eio(seg(p,.9,.985)))).toFixed(3)}
   const KD=KG,h0=innerWidth<700?.55:.35,enter=eo(seg(p,.03,.11))*h0,hs=p<.14?enter:h0+(1-h0)*eio(seg(p,.14,.38));
   if(p<.01&&!KD.dragging){KD.d=0;KD.done=false}
   if(!KD.dragging&&!KD.done)KD.d=Math.max(0,KD.d-.012);
@@ -1306,7 +1308,7 @@ const ART='img,svg,canvas,.pd-card,.pd-fin,.card,.kst,.wheelwrap,.kula,.gzone';
 const SEAM={hero:[null,null],bless:[null,'#000'],moments:[null,'#000'],nb:['#000','#000'],bh:['#000','#000'],rc:['#000','#000'],knot:[null,null],sapt:[null,'#000'],sky:['#ff7860',null]};
 const scenes=$$('[data-scene]').map(el=>{const key=el.dataset.scene==='event'?['nb','bh','rc'][+el.dataset.i]:el.dataset.scene,st=$('.stage',el),f=[];
  SEAM[key].forEach((c,j)=>{if(!c){f.push(null);return}const d=document.createElement('div');d.className='fz '+(j?'b':'t');d.style.setProperty('--fc',c);st.appendChild(d);f.push(d)});
- return {el,k:el.dataset.scene,p:-1,t:0,top:0,len:1,f,st,ov:key==='moments'||key==='bh'||key==='rc'||key==='sapt'}});
+ return {el,k:el.dataset.scene,p:-1,t:0,top:0,len:1,f,st,ov:key==='moments'||key==='bh'||key==='rc'||key==='sapt'||key==='knot'}});
 function spLine(){const box=$('#sapt .sp-path'),svg=$('#sapt .sp-line');if(!box)return;const W=box.clientWidth,H=box.clientHeight;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
  const pts=$$('.sp-step',box).map(b=>[parseFloat(b.style.left)/100*W,parseFloat(b.style.top)/100*H]);const str=pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
  $$('polyline',svg).forEach(pl=>pl.setAttribute('points',str));const fg=$('.fg',svg),L=fg.getTotalLength();fg.style.strokeDasharray=L;fg.style.strokeDashoffset=L;svg._L=L;
