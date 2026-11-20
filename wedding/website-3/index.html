@@ -33,7 +33,9 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{overscroll-behavior-y:none}
 @media (display-mode:standalone){#bar{padding-top:calc(32px + env(safe-area-inset-top))!important}#prog{top:env(safe-area-inset-top)}}
-html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html,body{-webkit-tap-highlight-color:transparent}
+/* text can be selected anywhere; only photos and artwork are protected from long-press save/select */
+img,svg,canvas,.pd-card,.pd-fin,.card,.kst,.wheelwrap,.toran,#cur,.kula,.gzone,.land{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 img,svg,canvas{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 ::selection{background:transparent}
 html,body{overflow-x:clip;background:#000;color:var(--ivory)}
@@ -110,7 +112,7 @@ body.ready .fade-in{opacity:1;transform:none}
 #hero .flash{position:absolute;inset:0;z-index:6;background:radial-gradient(70% 55% at 50% 52%,rgba(255,110,20,.28) 0,rgba(180,50,0,.12) 40%,transparent 70%),radial-gradient(120% 70% at 50% 120%,rgba(255,80,0,.32),transparent 60%),radial-gradient(circle at 50% 40%,#ffd27a 0,#ff7a10 14%,#5a1400 38%,#000 70%);opacity:0;pointer-events:none}
 
 /* ---------- BLESSING ---------- */
-#bless{height:calc(var(--svh)*420);--th:124px;margin-top:calc(var(--svh)*-100)}
+#bless{height:calc(var(--svh)*380);--th:124px;margin-top:calc(var(--svh)*-100)}
 #bless .veils{position:absolute;inset:0;z-index:12;pointer-events:none}
 #bless .veil{position:absolute;left:0;right:0;top:-8%;height:116%;transform:translateY(100%);will-change:transform;
  background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,var(--a)) 7%,rgba(0,0,0,var(--a)));visibility:hidden}
@@ -451,6 +453,84 @@ html.lite #bar span{background:rgba(36,5,12,.85)}
  .skyfoot .brand{grid-column:2}
  .skyfoot .reach{grid-column:3;justify-self:end;align-items:flex-end}
 }
+/* ---------- light the diya ---------- */
+#bless .diyaw{position:absolute;left:50%;top:50%;z-index:4;width:min(58vw,320px,calc(var(--svh)*36));transform:translate(-45.45%,-47%);pointer-events:none;opacity:0;will-change:transform,opacity}
+#bless .diya{all:unset;position:relative;display:block;width:100%;aspect-ratio:220/170;cursor:pointer;pointer-events:auto;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;border-radius:50%}
+#bless .diya svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#bless .dy-ring{fill:none;stroke:rgba(255,214,140,.85);stroke-width:1.6;stroke-dasharray:296;stroke-dashoffset:296;filter:drop-shadow(0 0 4px rgba(255,180,80,.8))}
+#bless .dy-flame{transform-box:fill-box}
+#bless .dy-fl{transform-origin:0 0;animation:dyFlick 1.6s ease-in-out infinite alternate}
+@keyframes dyFlick{0%{transform:scale(1,1) skewX(0)}30%{transform:scale(.96,1.05) skewX(2deg)}60%{transform:scale(1.03,.97) skewX(-2deg)}100%{transform:scale(.98,1.03) skewX(1deg)}}
+#bless .diya:focus-visible{outline:2px solid var(--gold2);outline-offset:10px}
+#bless .dy-hint{position:absolute;left:45.45%;top:100%;transform:translateX(-50%);margin-top:calc(var(--svh)*2.5);text-align:center;font-family:var(--body);font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2);white-space:nowrap;text-shadow:0 0 12px rgba(255,170,60,.5);transition:opacity .4s}
+#bless .dy-hint .t-mouse{display:none}
+@media (hover:hover) and (pointer:fine){#bless .dy-hint .t-mouse{display:inline}#bless .dy-hint .t-touch{display:none}}
+/* ---------- tie the Hata Ganthi yourself ---------- */
+#knot .kst{touch-action:pan-y}
+#knot .kst.can{cursor:grab}#knot .kst.drag{cursor:grabbing}
+.khint{all:unset;position:absolute;left:50%;bottom:calc(var(--svh)*9);transform:translateX(-50%);z-index:6;opacity:0;pointer-events:none;cursor:pointer;
+ font-family:var(--body);font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2);white-space:nowrap;text-shadow:0 0 12px rgba(255,170,60,.5);padding:8px 4px}
+.khint::before,.khint::after{content:'';display:inline-block;width:22px;height:1px;vertical-align:middle;margin:0 12px;background:linear-gradient(90deg,transparent,var(--gold2))}
+.khint::after{background:linear-gradient(270deg,transparent,var(--gold2))}
+.khint .t-mouse{display:none}
+@media (hover:hover) and (pointer:fine){.khint .t-mouse{display:inline}.khint .t-touch{display:none}}
+.khint:focus-visible{outline:2px solid var(--gold2);outline-offset:4px}
+/* ---------- Saptapadi: seven steps, seven promises ---------- */
+#sapt{height:calc(var(--svh)*460);margin-top:calc(var(--svh)*-100)}
+#sapt .stage{display:flex;flex-direction:column;align-items:center;padding:calc(var(--svh)*11) 0 calc(var(--svh)*6);
+ background:radial-gradient(70% 45% at 50% 78%,rgba(215,38,46,.22),transparent 70%),radial-gradient(60% 40% at 50% 40%,rgba(255,140,40,.10),transparent 70%),linear-gradient(#000,#0b0105 35%,#140208 75%,#000)}
+.sp-head{text-align:center;padding:0 20px;position:relative;z-index:2}
+.sp-head .or{font-family:var(--odia);font-size:clamp(2.2rem,9vw,4.4rem);color:var(--gold);line-height:1.2}
+.sp-head h2{font-family:var(--ital);font-style:italic;font-weight:500;font-size:clamp(1.5rem,5vw,2.4rem);color:var(--ivory)}
+.sp-says{position:relative;width:100%;max-width:760px;height:calc(var(--svh)*20);margin-top:calc(var(--svh)*3);z-index:2}
+.sp-say{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 26px;opacity:0;will-change:opacity,transform}
+.sp-k{font-family:var(--body);font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold2);margin-bottom:12px}
+.sp-t{font-family:var(--ital);font-style:italic;font-size:clamp(1.35rem,5vw,2.3rem);line-height:1.25;color:#ffe6dc;max-width:20em;text-wrap:balance}
+.sp-path{position:relative;flex:1;width:min(100%,920px);min-height:0;margin-top:calc(var(--svh)*1)}
+.sp-line{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sp-line polyline{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sp-line .bg{stroke:rgba(255,214,140,.22);stroke-width:1.2;stroke-dasharray:2 6}
+.sp-line .fg{stroke:var(--gold2);stroke-width:1.6;filter:drop-shadow(0 0 6px rgba(255,180,80,.7))}
+.sp-step{all:unset;position:absolute;width:clamp(30px,8vw,64px);aspect-ratio:40/70;transform:translate(-50%,-50%) rotate(var(--r)) scaleX(var(--m)) scale(var(--s,1));cursor:pointer;
+ transition:transform .5s cubic-bezier(.2,.8,.2,1);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.sp-step::before{content:'';position:absolute;left:50%;top:50%;width:260%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(.4);opacity:0;pointer-events:none;
+ background:radial-gradient(closest-side,rgba(255,120,60,.55),rgba(215,38,46,.18) 55%,transparent);transition:opacity .6s,transform .6s}
+.sp-step svg{position:relative;width:100%;height:100%;overflow:visible}
+.sp-step .sole,.sp-step .toes{fill:transparent;stroke:rgba(255,214,140,.55);stroke-width:1.2;transition:fill .5s,stroke .5s}
+.sp-step.done .sole,.sp-step.done .toes{fill:#c4142e;stroke:#ff9a7a}
+.sp-step.on{--s:1.25}
+.sp-step.on .sole,.sp-step.on .toes{fill:#e3262e;stroke:#ffd0a0;filter:drop-shadow(0 0 6px rgba(255,90,60,.9))}
+.sp-step.on::before{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.sp-step:focus-visible{outline:2px solid var(--gold2);outline-offset:6px;border-radius:40%}
+@media (hover:hover) and (pointer:fine){.sp-step:hover{--s:1.18}.sp-step:hover .sole,.sp-step:hover .toes{stroke:var(--gold2)}.sp-step.on:hover{--s:1.3}}
+.sp-hint{position:relative;z-index:2;font-family:var(--body);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2);opacity:0;text-shadow:0 0 12px rgba(255,170,60,.5)}
+@media (min-width:900px){.sp-path{margin-top:0}.sp-says{height:calc(var(--svh)*18)}}
+/* ---------- Kaudi Khela: find the kaudi in the pot ---------- */
+.kk{position:relative;z-index:1;max-width:560px;margin:calc(var(--svh)*10) auto 0;padding:34px 22px 30px;border-radius:28px;text-align:center;isolation:isolate;
+ background:linear-gradient(160deg,rgba(40,8,24,.78),rgba(20,4,14,.82));border:1px solid rgba(255,214,140,.22);box-shadow:0 30px 80px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,240,210,.12)}
+.kk-kick{font-family:var(--body);font-size:.62rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold2)}
+.kk-head .or{font-family:var(--odia);font-size:clamp(1.8rem,6vw,2.6rem);color:var(--gold);margin-top:6px}
+.kk-head h3{font-family:var(--disp);font-weight:400;font-size:clamp(1.8rem,6vw,2.6rem);line-height:1.05;color:var(--ivory)}
+.kk-sub{font-family:var(--ital);font-style:italic;font-size:1.15rem;color:#ffe2c4;margin:10px auto 0;max-width:22em;text-wrap:balance}
+.kk-pot{position:relative;width:min(76vw,340px);aspect-ratio:1;margin:26px auto 0;border-radius:50%;
+ background:radial-gradient(circle at 35% 30%,#fff1b8,#e8b04a 22%,#a8691c 48%,#5e3208 70%,#2a1404 100%);box-shadow:0 26px 50px -16px rgba(0,0,0,.85),0 0 0 2px rgba(255,214,140,.35)}
+.kk-rim{position:absolute;inset:4.5%;border-radius:50%;background:radial-gradient(circle at 60% 70%,#f6cf74,#a86a18 55%,#4a2606 100%);box-shadow:inset 0 6px 14px rgba(0,0,0,.55)}
+.kk-water{position:absolute;inset:11%;border-radius:50%;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+ background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.75),transparent 40%),radial-gradient(circle at 62% 62%,rgba(255,206,90,.55),transparent 55%),radial-gradient(circle,#fff6e2,#f1dfb6 60%,#d9b978 100%);
+ box-shadow:inset 0 10px 24px rgba(90,50,10,.45),inset 0 -6px 16px rgba(255,255,255,.35)}
+.kk-water:focus-visible{outline:2px solid var(--gold2);outline-offset:4px}
+.kk-pet{position:absolute;left:var(--x);top:var(--y);width:16px;height:24px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--c);opacity:.9;box-shadow:0 2px 3px rgba(80,30,0,.35);pointer-events:none;animation:kkDrift 14s ease-in-out infinite alternate;animation-delay:var(--d)}
+@keyframes kkDrift{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(14px,-10px) rotate(70deg)}100%{transform:translate(-10px,12px) rotate(160deg)}}
+.kk-rip{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;pointer-events:none;border:2px solid var(--rc,rgba(255,255,255,.9));box-shadow:0 0 12px var(--rc,rgba(255,255,255,.7))}
+.kk-cowrie{position:absolute;width:15%;aspect-ratio:40/52;transform:translate(-50%,-50%) scale(.4);opacity:0;pointer-events:none;filter:drop-shadow(0 4px 6px rgba(80,40,0,.5))}
+.kk-cowrie svg{width:100%;height:100%;display:block}
+.kk.found .kk-cowrie{opacity:1;transform:translate(-50%,-50%) scale(1.25);transition:opacity .5s,transform .9s cubic-bezier(.3,1.6,.4,1);filter:drop-shadow(0 0 14px rgba(255,200,90,.95)) drop-shadow(0 4px 6px rgba(80,40,0,.5))}
+.kk-msg{margin-top:20px;font-family:var(--body);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2);min-height:1.2em}
+.kk-again{all:unset;margin-top:14px;padding:10px 22px;border-radius:99px;border:1px solid rgba(255,214,140,.45);color:#ffe7c4;font-family:var(--body);font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s,background .3s,border-color .3s}
+.kk.found .kk-again{opacity:1;pointer-events:auto}
+.kk-again:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+@media (hover:hover) and (pointer:fine){.kk-again:hover{background:rgba(255,200,120,.1);border-color:var(--gold2)}}
+@media (min-width:900px){.kk{margin-top:calc(var(--svh)*12)}}
 /* text people may want to copy: names, dates, venues, ritual notes */
 .ev-info,.ev-info *,#sky .fin,#sky .fin *,#rit .rc p,#rit .rc h3,#hero h1 *{-webkit-user-select:text;user-select:text}
 /* keyboard: clear focus ring, chapter navigation, skip link */
@@ -565,6 +645,37 @@ body.ready #chap.away{opacity:0;pointer-events:none}
       <div class="aura"></div>
       <div class="raysw"><div class="rays"></div></div>
       <div class="beam"></div>
+      <div class="diyaw">
+        <button class="diya" type="button" aria-label="Light the diya">
+          <svg viewBox="0 0 220 170" aria-hidden="true">
+            <defs>
+              <linearGradient id="dyClay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8662f"/><stop offset=".55" stop-color="#8a3414"/><stop offset="1" stop-color="#4a1606"/></linearGradient>
+              <linearGradient id="dyGold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a86a18"/><stop offset=".5" stop-color="#ffe2a0"/><stop offset="1" stop-color="#a86a18"/></linearGradient>
+              <radialGradient id="dyOil" cx=".5" cy=".4"><stop offset="0" stop-color="#7a4210"/><stop offset="1" stop-color="#2a0e04"/></radialGradient>
+              <radialGradient id="dyF1" cx=".5" cy=".75" r=".75"><stop offset="0" stop-color="#fff6d6"/><stop offset=".35" stop-color="#ffd25a"/><stop offset=".75" stop-color="#ff8a1c"/><stop offset="1" stop-color="#ff5a10" stop-opacity="0"/></radialGradient>
+              <radialGradient id="dyF2" cx=".5" cy=".8" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#fff2b8"/><stop offset="1" stop-color="#ffd25a" stop-opacity="0"/></radialGradient>
+              <radialGradient id="dyGlow"><stop offset="0" stop-color="#ffc35a" stop-opacity=".9"/><stop offset=".35" stop-color="#ff8a1c" stop-opacity=".35"/><stop offset="1" stop-color="#ff6a00" stop-opacity="0"/></radialGradient>
+            </defs>
+            <ellipse cx="104" cy="152" rx="74" ry="8" fill="#000" opacity=".45"/>
+            <circle class="dy-glow" cx="100" cy="58" r="78" fill="url(#dyGlow)"/>
+            <path d="M26 92C28 128 62 148 100 148C138 148 172 128 174 92C150 84 50 84 26 92Z" fill="url(#dyClay)"/>
+            <path d="M40 114C70 128 130 128 160 114" fill="none" stroke="url(#dyGold)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
+            <path d="M48 126C74 137 126 137 152 126" fill="none" stroke="#ffcf7a" stroke-width="1" opacity=".45"/>
+            <ellipse cx="100" cy="92" rx="72" ry="11" fill="url(#dyOil)"/>
+            <ellipse cx="100" cy="92" rx="74" ry="12.5" fill="none" stroke="url(#dyGold)" stroke-width="3"/>
+            <path d="M100 96C103 90 102 84 100 79" fill="none" stroke="#2a1206" stroke-width="3.4" stroke-linecap="round"/>
+            <circle class="dy-ring" cx="100" cy="58" r="47" transform="rotate(-90 100 58)"/>
+            <g class="dy-flame" transform="translate(100 80)">
+              <g class="dy-fl">
+                <path d="M0 2C-12 -8 -11 -30 0 -58C11 -30 12 -8 0 2Z" fill="url(#dyF1)"/>
+                <path d="M0 0C-6 -6 -6 -20 0 -36C6 -20 6 -6 0 0Z" fill="url(#dyF2)"/>
+                <ellipse cx="0" cy="-2" rx="3.2" ry="4" fill="#6fb6ff" opacity=".55"/>
+              </g>
+            </g>
+          </svg>
+        </button>
+        <p class="dy-hint"><span class="t-touch">Touch &amp; hold</span><span class="t-mouse">Press &amp; hold</span> to light the diya</p>
+      </div>
       <div class="gwrap">
         <img class="gsk" src="ganesha-sketch.webp" alt="">
         <img class="gcol" src="ganesha.webp" alt="Lord Ganesha">
@@ -608,6 +719,7 @@ body.ready #chap.away{opacity:0;pointer-events:none}
       <div class="or" lang="or">ହାତଗଣ୍ଠି</div>
       <h2>Hata Ganthi</h2>
     </header>
+    <button class="khint" type="button"><span class="t-touch">Slide the hands together</span><span class="t-mouse">Drag the hands together</span></button>
     <div class="kcs"><p class="kc">Two families blossom into one.</p><p class="kc">Her palm is placed upon his.</p><p class="kc">Tied together — the sacred knot.</p></div>
     <div class="kst"><svg class="kn" preserveAspectRatio="xMidYMid meet" viewBox="30 0 800 400" role="img" aria-label="The bride's hand rests on the groom's hand and a sacred thread ties them together">
 <defs>
@@ -678,6 +790,24 @@ body.ready #chap.away{opacity:0;pointer-events:none}
 </section>
 
 <!-- RITUALS -->
+<section id="sapt" class="scene" data-scene="sapt">
+  <div class="stage">
+    <header class="sp-head">
+      <div class="or" lang="or">ସପ୍ତପଦୀ</div>
+      <h2>Saptapadi</h2>
+    </header>
+    <div class="sp-says" aria-live="polite">
+      <div class="sp-say sp-intro"><p class="sp-k">Seven steps around the sacred fire</p><p class="sp-t">Each step, a promise.</p></div>
+      <div class="sp-say"><p class="sp-k">Step 1 · Nourishment</p><p class="sp-t">We will nourish each other — in body and in spirit.</p></div><div class="sp-say"><p class="sp-k">Step 2 · Strength</p><p class="sp-t">We will grow strong together — in health, in mind, in heart.</p></div><div class="sp-say"><p class="sp-k">Step 3 · Prosperity</p><p class="sp-t">We will build our home with honesty and share all it holds.</p></div><div class="sp-say"><p class="sp-k">Step 4 · Happiness</p><p class="sp-t">We will share every joy, and honour each other’s families.</p></div><div class="sp-say"><p class="sp-k">Step 5 · Family</p><p class="sp-t">We will cherish our family — the elders and the little ones.</p></div><div class="sp-say"><p class="sp-k">Step 6 · Every season</p><p class="sp-t">We will walk side by side through every season of life.</p></div><div class="sp-say"><p class="sp-k">Step 7 · Friendship</p><p class="sp-t">We will be best friends — in this life, and beyond.</p></div>
+      <div class="sp-say sp-end"><p class="sp-k">Seven steps</p><p class="sp-t">One journey, together.</p></div>
+    </div>
+    <div class="sp-path">
+      <svg class="sp-line" aria-hidden="true"><polyline class="bg" points="8.0,72.0 22.0,53.0 36.0,39.1 50.0,34.0 64.0,39.1 78.0,53.0 92.0,72.0"/><polyline class="fg" data-p="8.0,72.0 22.0,53.0 36.0,39.1 50.0,34.0 64.0,39.1 78.0,53.0 92.0,72.0"/></svg>
+      <button class="sp-step" type="button" style="left:8.0%;top:72.0%;--r:-38.9deg;--m:-1" aria-label="Step 1: Nourishment"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button><button class="sp-step" type="button" style="left:22.0%;top:53.0%;--r:-24.5deg;--m:1" aria-label="Step 2: Strength"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button><button class="sp-step" type="button" style="left:36.0%;top:39.1%;--r:-27.2deg;--m:-1" aria-label="Step 3: Prosperity"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button><button class="sp-step" type="button" style="left:50.0%;top:34.0%;--r:6.0deg;--m:1" aria-label="Step 4: Happiness"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button><button class="sp-step" type="button" style="left:64.0%;top:39.1%;--r:15.2deg;--m:-1" aria-label="Step 5: Family"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button><button class="sp-step" type="button" style="left:78.0%;top:53.0%;--r:36.5deg;--m:1" aria-label="Step 6: Every season"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button><button class="sp-step" type="button" style="left:92.0%;top:72.0%;--r:26.9deg;--m:-1" aria-label="Step 7: Friendship"><svg viewBox="0 0 40 70" aria-hidden="true"><path class="sole" d="M20 68C10 68 7.5 58 8.5 48C9.5 38 6 31 8.5 23C11 15 29 15 31.5 23C34 31 30.5 38 31.5 48C32.5 58 30 68 20 68Z"/><g class="toes"><circle cx="12" cy="10" r="4.6"/><circle cx="19.2" cy="6.8" r="3.6"/><circle cx="24.8" cy="7.4" r="3.2"/><circle cx="29.2" cy="10" r="2.8"/><circle cx="32.2" cy="13.8" r="2.4"/></g></svg></button>
+    </div>
+    <p class="sp-hint">Tap each step</p>
+  </div>
+</section>
 <section id="rit">
   <div class="orbs" aria-hidden="true"><i></i><i></i><i></i></div>
   <header>
@@ -687,6 +817,23 @@ body.ready #chap.away{opacity:0;pointer-events:none}
     <p>A short guide for our guests to the moments of an Odia wedding.</p>
   </header>
   <div class="rgrid" id="rgrid"></div>
+  <div class="kk" id="kk">
+    <div class="kk-head">
+      <p class="kk-kick">Play</p>
+      <div class="or" lang="or">କଉଡ଼ି ଖେଳ</div>
+      <h3>Kaudi Khela</h3>
+      <p class="kk-sub">The kaudi is hidden in the pot. Find it before the groom does!</p>
+    </div>
+    <div class="kk-pot">
+      <div class="kk-rim"></div>
+      <div class="kk-water" role="button" tabindex="0" aria-label="Dip into the water to search for the kaudi">
+        <i class="kk-pet" style="--x:22%;--y:30%;--c:#ff9a1f;--d:0s"></i><i class="kk-pet" style="--x:66%;--y:24%;--c:#ffc21f;--d:-3s"></i><i class="kk-pet" style="--x:72%;--y:64%;--c:#ff7b16;--d:-6s"></i><i class="kk-pet" style="--x:34%;--y:72%;--c:#ffd27a;--d:-9s"></i><i class="kk-pet" style="--x:50%;--y:48%;--c:#ff4f86;--d:-2s"></i>
+        <div class="kk-cowrie"><svg viewBox="0 0 40 52" aria-hidden="true"><defs><radialGradient id="cwG" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#fffdf6"/><stop offset=".55" stop-color="#f3e3c4"/><stop offset="1" stop-color="#c9a875"/></radialGradient></defs><ellipse cx="20" cy="26" rx="17" ry="23" fill="url(#cwG)" stroke="#b8935a" stroke-width="1"/><path d="M20 6C16 16 16 36 20 46C24 36 24 16 20 6Z" fill="#5a3a1a"/><g stroke="#f3e3c4" stroke-width="1.6" stroke-linecap="round"><path d="M16.5 13h3M16 18h3.4M15.8 23h3.6M15.8 28h3.6M16 33h3.4M16.5 38h3"/><path d="M20.5 13h3M20.6 18h3.4M20.6 23h3.6M20.6 28h3.6M20.6 33h3.4M20.5 38h3"/></g><ellipse cx="13" cy="16" rx="4" ry="6" fill="#fff" opacity=".45"/></svg></div>
+      </div>
+    </div>
+    <p class="kk-msg" aria-live="polite">Tap the water to search</p>
+    <button class="kk-again" type="button">Play again</button>
+  </div>
 </section>
 
 <!-- SKY -->
@@ -964,6 +1111,23 @@ const barEl=$('#bar'),toranEl=$('#toran'),beam=$('#bless .beam'),aura=$('#bless 
 const stx=[$('#s1'),$('#s2'),$('#s3')];
 const lgA=$('#lgA'),lgB=$('#lgB');
 let tNow=0;
+const DY={hold:0,lit:false,holding:false,w:$('#bless .diyaw'),btn:$('#bless .diya'),flame:$('#bless .dy-flame'),glow:$('#bless .dy-glow'),ring:$('#bless .dy-ring'),hint:$('#bless .dy-hint')};
+function lightDiya(){if(DY.lit)return;DY.lit=true;DY.hold=1;DY.holding=false;
+ const b=$('#bless'),top=b.getBoundingClientRect().top+scrollY,len=b.offsetHeight-innerHeight,goal=top+len*.78*.93;
+ if(scrollY<goal)autoTo(goal,RM?0:5200);}
+DY.btn.addEventListener('pointerdown',e=>{if(DY.lit)return;e.preventDefault();DY.holding=true;try{DY.btn.setPointerCapture(e.pointerId)}catch(_){}});
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>DY.btn.addEventListener(ev,()=>{DY.holding=false}));
+DY.btn.addEventListener('click',e=>{if(e.detail===0)lightDiya()});
+DY.btn.addEventListener('contextmenu',e=>e.preventDefault());
+const KG={d:0,done:false,dragging:false,hint:$('.khint')};
+function tieKnot(){if(KG.done)return;KG.done=true;KG.d=1;const k=$('#knot'),top=k.getBoundingClientRect().top+scrollY,len=k.offsetHeight-innerHeight,goal=top+len*.87;if(scrollY<goal)autoTo(goal,RM?0:4600)}
+(()=>{const k=$('#knot .kst');let x0=0,d0=0,side=1,id=null;
+ k.addEventListener('pointerdown',e=>{if(KG.done||!k.classList.contains('can'))return;const r=k.getBoundingClientRect();e.preventDefault();side=e.clientX<r.left+r.width/2?1:-1;x0=e.clientX;d0=KG.d;id=e.pointerId;KG.dragging=true;k.classList.add('drag');try{k.setPointerCapture(id)}catch(_){}});
+ k.addEventListener('pointermove',e=>{if(!KG.dragging||e.pointerId!==id)return;const sv=k.querySelector('svg.kn').getBoundingClientRect(),ppu=sv.width/800,h0=innerWidth<700?.55:.35,need=(1-h0)*560*ppu*.7;KG.d=cl(d0+side*(e.clientX-x0)/need)});
+ const end=()=>{if(!KG.dragging)return;KG.dragging=false;k.classList.remove('drag');id=null};
+ ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>k.addEventListener(ev,end));
+ KG.hint.addEventListener('click',()=>tieKnot());})();
+(()=>{const sec=$('#sapt');$$('.sp-step',sec).forEach((b,i)=>b.addEventListener('click',()=>{const top=sec.getBoundingClientRect().top+scrollY,len=sec.offsetHeight-innerHeight,goal=top+len*(.15+(i+.45)*(.71/7));autoTo(goal,RM?0:Math.min(1400,500+Math.abs(goal-scrollY)*.5))}))})();
 const U={
  hero(p){
   {const W0=hw.offsetWidth||300,vw=innerWidth,vh=innerHeight,wt=parseFloat(getComputedStyle(hero).getPropertyValue('--wt'))/100||.38,
@@ -986,14 +1150,28 @@ const U={
   const P0=p;p=cl(p/.78);
   {const vs=el._v||(el._v=$$('#bless .veil'));vs.forEach((v,k)=>{const t=eio(seg(P0,.8+k*.016,.85+k*.016));v.style.visibility=t>0?'visible':'hidden';v.style.transform=`translateY(${((1-t)*100).toFixed(2)}%)`});}
   // 1 garland drops in once the page has fully arrived
-  const tk=eback(seg(p,.03,.13));toranEl.style.transform=`translateY(${(1-tk)*-110}%)`;
-  // 2 a single ray of light falls from above
-  const bk=eo(seg(p,.1,.22));beam.style.transform=`translateX(-50%) scaleY(${bk})`;beam.style.opacity=bk*(1-.6*seg(p,.34,.5));
-  // 3 the aura swells
+  const tk=eback(seg(p,.02,.1));toranEl.style.transform=`translateY(${(1-tk)*-110}%)`;
+  // 2 the diya: lit by touch-and-hold, or by scrolling on
+  const D=DY,now=tNow,dt=Math.min(64,now-(D.t||now));D.t=now;
+  if(p<.012&&!D.holding){D.lit=false;D.hold=0}
+  if(!D.lit){D.hold=cl(D.hold+(D.holding?dt/1100:-dt/500));if(D.hold>=1)lightDiya();}
+  const sf=eo(seg(p,.1,.16));if(sf>=1&&!D.lit){D.lit=true}
+  D.fl=cl((D.fl||0)+(((D.lit?1:Math.max(sf,D.hold*.7)))-(D.fl||0))*Math.min(1,dt/120));
+  const fk=Math.max(D.fl,D.lit?1:0),dIn=eo(seg(p,.02,.08)),dOut=seg(p,.3,.42);
+  D.w.style.opacity=(dIn*(1-dOut)).toFixed(3);D.w.style.visibility=dIn*(1-dOut)>0?'visible':'hidden';
+  D.w.style.transform=`translate(-45.45%,-47%) scale(${(lerp(.86,1,dIn)*lerp(1,.8,dOut)).toFixed(4)})`;
+  D.btn.style.pointerEvents=dIn>.5&&dOut<.2?'auto':'none';
+  D.flame.style.opacity=fk>.01?1:0;D.flame.setAttribute('transform',`translate(100 80) scale(${(.15+.85*fk).toFixed(3)})`);
+  D.glow.style.opacity=(fk*(1-.5*seg(p,.22,.36))).toFixed(3);
+  D.ring.style.strokeDashoffset=(296*(1-D.hold)).toFixed(1);D.ring.style.opacity=D.lit?0:(D.hold>.01?1:0);
+  D.hint.style.opacity=(dIn*(1-Math.max(D.lit?1:0,seg(p,.08,.12)))).toFixed(3);
+  // 3 a single ray of light falls onto the flame
+  const bk=eo(seg(p,.13,.24));beam.style.transform=`translateX(-50%) scaleY(${bk})`;beam.style.opacity=bk*(1-.6*seg(p,.34,.5));
+  // 4 the aura swells out of the flame
   const ak=eo(seg(p,.2,.38));aura.style.transform=`translate(-50%,-50%) scale(${lerp(.1,1.25,ak)})`;aura.style.opacity=ak;
-  // 4 the lines burst out
+  // 5 the lines burst out
   const rk=eo(seg(p,.32,.48));raysw.style.opacity=rk;raysw.style.transform=`scale(${lerp(.3,1,rk)}) rotate(${(1-rk)*-40}deg)`;
-  // 5 Ganesha: outline, then colour
+  // 6 Ganesha: outline, then colour
   gsk.style.opacity=.55*seg(p,.42,.5)*(1-seg(p,.62,.72));
   const r=eo(seg(p,.5,.7));gcol.style.clipPath=`circle(${r*75}% at 50% 55%)`;
   gwrap.style.transform=`scale(${lerp(.9,1.03,eo(seg(p,.42,.75)))})`;
@@ -1066,7 +1244,15 @@ const U={
  },
  knot(p,el){
   const K=el._k||(el._k={hb:$('.hand-b',el),hg:$('.hand-g',el),thr:$$('.thr',el),tas:$('.tassel',el),glow:$('.knot-glow',el),mand:$('.kn-mandw',el),kc:$$('.kc',el)});
-  const h=eio(seg(p,.08,.36)),low=eio(seg(p,.46,.56)),t=seg(p,.58,.76),ta=eback(seg(p,.76,.84)),g=eo(seg(p,.72,.88));
+  {const st=el._st||(el._st=$('.stage',el));st.style.opacity=(1-eio(seg(p,.9,.985))).toFixed(3)}
+  const KD=KG,h0=innerWidth<700?.55:.35,enter=eo(seg(p,.03,.11))*h0,hs=p<.14?enter:h0+(1-h0)*eio(seg(p,.14,.38));
+  if(p<.01&&!KD.dragging){KD.d=0;KD.done=false}
+  if(!KD.dragging&&!KD.done)KD.d=Math.max(0,KD.d-.012);
+  if(KD.d>=.97&&!KD.done)tieKnot();
+  const h=Math.max(hs,KD.done?1:h0+(1-h0)*KD.d*(p>.06?1:0)),live=p>.08&&hs<h0+.05&&!KD.done;
+  if(K.kst2!==live){K.kst2=live;(K.kst||$('.kst',el)).classList.toggle('can',live)}
+  KD.hint.style.opacity=(seg(p,.08,.12)*(1-seg(hs,h0+.01,h0+.07))*(KD.done?0:1)*(1-Math.min(1,KD.d*3))).toFixed(3);KD.hint.style.pointerEvents=live?'auto':'none';
+  const low=eio(seg(p,.46,.56)),t=seg(p,.58,.76),ta=eback(seg(p,.76,.84)),g=eo(seg(p,.72,.88));
   K.hb.setAttribute('transform',`translate(${(1-h)*-560} ${-34*(1-low)})`);
   K.hg.setAttribute('transform',`translate(${(1-h)*560} 0)`);
   K.thr.forEach(e=>e.style.strokeDashoffset=1.02*(1-t));
@@ -1078,6 +1264,17 @@ const U={
   K.mand.style.opacity=seg(p,0,.12);
   const win=[[-1,0,.12,.18],[.2,.26,.5,.56],[.58,.64,2,2]];
   K.kc.forEach((e,i)=>{const w=win[i],o=(w[0]<0?1:seg(p,w[0],w[1]))*(1-seg(p,w[2],w[3]));e.style.opacity=o;e.style.transform=`translateY(${(1-o)*10}px)`});
+ },
+ sapt(p,el){
+  {const st=el._st||(el._st=$('.stage',el));st.style.opacity=eio(seg(p,0,.07)).toFixed(3)}
+  const S=el._sp||(el._sp={says:$$('.sp-say',el),steps:$$('.sp-step',el),fg:$('.sp-line .fg',el),hint:$('.sp-hint',el)});
+  // p: .1 intro · .16-.86 seven steps · .88 ending
+  const a=.15,b=.86,n=7,f=(p-a)/(b-a)*n,cur=p<a?-1:Math.min(n-1,Math.floor(f)),end=p>=.88;
+  const show=end?n+1:cur+1;
+  S.says.forEach((d,i)=>{const o=i===show?1:0;d._o=(d._o||0)+(o-(d._o||0))*.12;d.style.opacity=d._o.toFixed(3);d.style.transform=`translateY(${((1-d._o)*(i<show?-14:14)).toFixed(1)}px)`});
+  S.steps.forEach((st,i)=>{const on=!end&&i===cur,done=end||i<cur;if(st._on!==on){st._on=on;st.classList.toggle('on',on)}if(st._d!==done){st._d=done;st.classList.toggle('done',done)}});
+  {const sv=S.fg.ownerSVGElement,L=sv._L||0,sg=sv._seg||[0];const want=end?L:cur<0?0:sg[cur];S.fg._v=(S.fg._v||0)+(want-(S.fg._v||0))*.1;S.fg.style.strokeDashoffset=(L-S.fg._v).toFixed(1);}
+  S.hint.style.opacity=(seg(p,.04,.1)*(1-seg(p,.3,.36))).toFixed(3);
  },
  sky(p,el){
   [[.04,.1,.26,.32],[.36,.42,.56,.62],[.7,.8,2,2]].forEach((r,i)=>{const o=seg(p,r[0],r[1])*(1-seg(p,r[2],r[3]));stx[i].style.opacity=o;stx[i].style.transform=`translateY(${(1-seg(p,r[0],r[1]))*24}px)`});
@@ -1104,21 +1301,41 @@ if(matchMedia('(hover:hover) and (pointer:fine)').matches)$$('#moments .pd-card,
    const dx=(Math.random()-.5)*60;d.animate([{transform:`translate(${x}px,${y}px) scale(.4)`,opacity:0},{opacity:1,offset:.2},{transform:`translate(${x+dx}px,${y-110-Math.random()*60}px) scale(1)`,opacity:0}],{duration:1400+Math.random()*800,easing:'ease-out',fill:'forwards'}).onfinish=()=>{d.remove();live--}}};
  k.addEventListener('pointerenter',()=>{puff();tm=setInterval(puff,160)});k.addEventListener('pointerleave',()=>clearInterval(tm));
 })();
-const SELOK='.skyfoot .reach,.ev-info,#sky .fin,#rit .rc p,#rit .rc h3,#hero h1';
-['selectstart','dragstart','contextmenu'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target.nodeType===1?e.target:e.target.parentElement;if(ev!=='dragstart'&&t&&t.closest&&t.closest(SELOK))return;e.preventDefault()}));
-const SEAM={hero:[null,null],bless:[null,'#000'],moments:[null,'#000'],nb:['#000','#000'],bh:['#000','#000'],rc:['#000','#000'],knot:[null,'#000'],sky:['#ff7860',null]};
+const ART='img,svg,canvas,.pd-card,.pd-fin,.card,.kst,.wheelwrap,.kula,.gzone';
+['selectstart','dragstart','contextmenu'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target.nodeType===1?e.target:e.target.parentElement;if(ev==='dragstart'||(t&&t.closest&&t.closest(ART)))e.preventDefault()}));
+const SEAM={hero:[null,null],bless:[null,'#000'],moments:[null,'#000'],nb:['#000','#000'],bh:['#000','#000'],rc:['#000','#000'],knot:[null,null],sapt:[null,'#000'],sky:['#ff7860',null]};
 const scenes=$$('[data-scene]').map(el=>{const key=el.dataset.scene==='event'?['nb','bh','rc'][+el.dataset.i]:el.dataset.scene,st=$('.stage',el),f=[];
  SEAM[key].forEach((c,j)=>{if(!c){f.push(null);return}const d=document.createElement('div');d.className='fz '+(j?'b':'t');d.style.setProperty('--fc',c);st.appendChild(d);f.push(d)});
- return {el,k:el.dataset.scene,p:-1,t:0,top:0,len:1,f,st,ov:key==='moments'||key==='bh'||key==='rc'}});
+ return {el,k:el.dataset.scene,p:-1,t:0,top:0,len:1,f,st,ov:key==='moments'||key==='bh'||key==='rc'||key==='sapt'}});
+function spLine(){const box=$('#sapt .sp-path'),svg=$('#sapt .sp-line');if(!box)return;const W=box.clientWidth,H=box.clientHeight;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+ const pts=$$('.sp-step',box).map(b=>[parseFloat(b.style.left)/100*W,parseFloat(b.style.top)/100*H]);const str=pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
+ $$('polyline',svg).forEach(pl=>pl.setAttribute('points',str));const fg=$('.fg',svg),L=fg.getTotalLength();fg.style.strokeDasharray=L;fg.style.strokeDashoffset=L;svg._L=L;
+ const seg=[0];for(let i=1;i<pts.length;i++)seg.push(seg[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));svg._seg=seg;}
 const G={};function geo(el){const r=el.getBoundingClientRect();return {top:r.top+scrollY,h:el.offsetHeight}}
 function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top=r.top+scrollY;s.len=Math.max(1,s.el.offsetHeight-innerHeight);s.el._top=s.top});
- G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
+ G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
+/* ---------- Kaudi Khela ---------- */
+(()=>{const kk=$('#kk');if(!kk)return;const w=$('.kk-water',kk),cw=$('.kk-cowrie',kk),msg=$('.kk-msg',kk),again=$('.kk-again',kk);let K={},busy=false;
+ const hide=()=>{const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.36;K={x:.5+Math.cos(a)*r,y:.5+Math.sin(a)*r,n:0,last:null,done:false};cw.style.left=K.x*100+'%';cw.style.top=K.y*100+'%';kk.classList.remove('found');msg.textContent='Tap the water to search'};
+ const ripple=(x,y,col)=>{for(let i=0;i<2;i++){const d=document.createElement('i');d.className='kk-rip';d.style.left=x*100+'%';d.style.top=y*100+'%';d.style.setProperty('--rc',col);w.appendChild(d);
+   d.animate([{transform:'scale(.2)',opacity:.95},{transform:`scale(${5+i*3})`,opacity:0}],{duration:1100+i*400,delay:i*140,easing:'cubic-bezier(.2,.7,.3,1)',fill:'forwards'}).onfinish=()=>d.remove()}};
+ const burst=()=>{const cols=['#ff7a00','#ffc400','#e3261b','#ff4f86','#ffd27a'],r=kk.getBoundingClientRect(),c=cw.getBoundingClientRect(),x=c.left+c.width/2-r.left,y=c.top+c.height/2-r.top;
+   for(let i=0;i<34;i++){const d=document.createElement('i'),a=Math.random()*6.283,R=70+Math.random()*130;d.className='kpet';d.style.cssText=`--s:${8+Math.random()*9}px;--c:${cols[i%5]}`;kk.appendChild(d);
+   d.animate([{transform:`translate(${x}px,${y}px) scale(.3)`,opacity:1},{opacity:1,offset:.6},{transform:`translate(${x+Math.cos(a)*R}px,${y+Math.sin(a)*R-50}px) rotate(${(Math.random()*540-270)|0}deg) scale(1)`,opacity:0}],{duration:1400+Math.random()*900,easing:'cubic-bezier(.15,.7,.3,1)',fill:'forwards'}).onfinish=()=>d.remove()}};
+ const dip=(x,y)=>{if(K.done||busy)return;K.n++;const dist=Math.hypot(x-K.x,y-K.y);
+   if(dist<.13){K.done=true;ripple(K.x,K.y,'rgba(230,160,30,.9)');kk.classList.add('found');if(!RM)burst();msg.textContent=K.n===1?'First try — the home is yours!':`Found it in ${K.n} tries!`;return}
+   const close=cl(1-dist/.7),col=`rgba(${Math.round(lerp(150,220,close))},${Math.round(lerp(105,40,close))},${Math.round(lerp(40,40,close))},${lerp(.55,.85,close).toFixed(2)})`;ripple(x,y,col);
+   msg.textContent=K.last===null?(close>.6?'Very close…':'Not here — keep looking'):(dist<K.last?'Warmer…':'Colder…');K.last=dist};
+ w.addEventListener('pointerdown',e=>{const r=w.getBoundingClientRect();dip((e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height)});
+ w.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();const a=Math.random()*6.283,r=Math.random()*.36;dip(.5+Math.cos(a)*r,.5+Math.sin(a)*r)}});
+ again.addEventListener('click',()=>{hide();w.focus({preventScroll:true})});hide();})();
 /* ---------- chapter navigation (keyboard + mouse) ---------- */
 const CH=[['Welcome',()=>0],['Blessing',()=>G.bless.top+(G.bless.h-innerHeight)*.72],['Our story',()=>{const m=$('#moments');return m.offsetTop+(m.offsetHeight-innerHeight)*.12}],
  ['Ceremonies',()=>$('#events').getBoundingClientRect().top+scrollY],['Hata Ganthi',()=>{const k=$('#knot');return k.getBoundingClientRect().top+scrollY+(k.offsetHeight-innerHeight)*.8}],
+ ['Saptapadi',()=>{const k=$('#sapt');return k.getBoundingClientRect().top+scrollY+(k.offsetHeight-innerHeight)*.16}],
  ['Rituals',()=>$('#rit').getBoundingClientRect().top+scrollY],['Finale',()=>document.documentElement.scrollHeight-innerHeight]];
 const chapNav=$('#chap'),chapBtns=CH.map(([n,f])=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',n);
  b.addEventListener('click',()=>{smooth=false;scrollTo({top:f(),behavior:RM?'auto':'smooth'})});chapNav.appendChild(b);return b});
@@ -1189,12 +1406,16 @@ if(fine){document.documentElement.classList.add('cc');
  addEventListener('pointermove',e=>{cx=e.clientX;cy=e.clientY;cur.classList.remove('out');cur.classList.toggle('big',!!e.target.closest('.card,.rc,.chap .ph,.cd div,.pd-card,.pd-fin,.ev-info h3,#knot .kst,#rit .kula,#rit header h2,#rit header .or,.sk-temple,.sk-palm'))},{passive:true});
  document.addEventListener('pointerleave',()=>cur.classList.add('out'));}
 let sT=scrollY,sC=scrollY,smooth=false;
+// cinematic auto-scroll after an interaction; any touch, wheel or key hands control straight back
+let AUTO=null;function autoTo(y,ms){y=cl(y,0,document.documentElement.scrollHeight-innerHeight);smooth=false;if(!ms){scrollTo(0,y);AUTO=null;return}AUTO={a:scrollY,b:y,t0:performance.now(),d:ms}}
+['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{AUTO=null},{passive:true}));
 const maxS=()=>document.documentElement.scrollHeight-innerHeight;
 if(fine&&!RM){addEventListener('wheel',e=>{if(e.ctrlKey||document.body.classList.contains('loading'))return;e.preventDefault();
   if(!smooth){sT=sC=scrollY}const d=e.deltaY*(e.deltaMode===1?40:e.deltaMode===2?innerHeight:1);sT=cl(sT+d,0,maxS());smooth=true},{passive:false});
  addEventListener('keydown',()=>{smooth=false});addEventListener('pointerdown',()=>{smooth=false});}
 const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.min(100,t-(tPrev||t));tPrev=t;tNow=t;requestAnimationFrame(loop);
  if(!LITE&&!document.hidden&&scrollY!==lastY){if(dt>34)slowN++;else fastN++;if(slowN+fastN>=90){if(slowN>36){LITE=true;document.documentElement.classList.add('lite');DPR=1;try{measure()}catch(e){}}slowN=fastN=0}}lastY=scrollY;
+ if(AUTO){const k=cl((t-AUTO.t0)/AUTO.d),y2=lerp(AUTO.a,AUTO.b,eio(k));scrollTo(0,y2);sT=sC=y2;if(k>=1)AUTO=null}
  if(smooth){const k=1-Math.exp(-dt/165);sC+=(sT-sC)*k;if(Math.abs(sT-sC)<.5){sC=sT;smooth=false}scrollTo(0,sC);cvel=(sT-sC)}else cvel*=.9;
  if(fine){const kd=1-Math.exp(-dt/22),kr=1-Math.exp(-dt/105);
   RW.dx=(RW.dx??cx)+(cx-(RW.dx??cx))*kd;RW.dy=(RW.dy??cy)+(cy-(RW.dy??cy))*kd;
