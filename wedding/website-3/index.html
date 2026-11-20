@@ -534,6 +534,8 @@ html.lite #bar span{background:rgba(36,5,12,.85)}
 @media (min-width:900px){.kk{margin-top:calc(var(--svh)*12)}}
 #glp{position:fixed;inset:0;width:100%;height:100%;z-index:45;pointer-events:none;opacity:0;transition:opacity .25s}
 #glp.on{opacity:1}
+#glc{position:fixed;inset:0;width:100%;height:100%;z-index:46;pointer-events:none;display:none}
+#glc.on{display:block}
 /* text people may want to copy: names, dates, venues, ritual notes */
 .ev-info,.ev-info *,#sky .fin,#sky .fin *,#rit .rc p,#rit .rc h3,#hero h1 *{-webkit-user-select:text;user-select:text}
 /* keyboard: clear focus ring, chapter navigation, skip link */
@@ -613,6 +615,7 @@ body.ready #chap.away{opacity:0;pointer-events:none}
 <div id="cur" aria-hidden="true"><i class="ring"><b></b><u></u></i><i class="dot"></i></div>
 <div id="prog"></div>
 <canvas id="glp" aria-hidden="true"></canvas>
+<canvas id="glc" aria-hidden="true"></canvas>
 <a id="skip" href="#events">Skip to the ceremonies</a>
 <nav id="chap" aria-label="Chapters"></nav>
 <div id="bar"><span class="mono">R<b>✦</b>C</span><span class="dt">Odisha · 2027</span></div>
@@ -1321,7 +1324,7 @@ scenes.forEach((s,i)=>{s.prev=scenes[i-1]||null});
 function fitWm(){$$('#rit .rc .wm').forEach(w=>{const c=w.parentElement,max=c.clientWidth-40;w.style.setProperty('--wf','4.6rem');const ww=w.scrollWidth;if(ww>max)w.style.setProperty('--wf',(4.6*max/ww).toFixed(3)+'rem')})}
 const G={};function geo(el){const r=el.getBoundingClientRect();return {top:r.top+scrollY,h:el.offsetHeight}}
 function measure(){scenes.forEach(s=>{const r=s.el.getBoundingClientRect();s.top=r.top+scrollY;s.len=Math.max(1,s.el.offsetHeight-innerHeight);s.el._top=s.top});
- G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();if(typeof GLP!=='undefined'&&GLP.measure)GLP.measure();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
+ G.evh=geo($('#events'));G.bless=geo($('#bless'));G.ec=G.evh;spLine();fitWm();if(typeof GLP!=='undefined'&&GLP.measure)GLP.measure();if(typeof CLD!=='undefined')CLD.measure();G.hero=geo($('#hero'));G.sky=geo($('#sky'));{const sk=$('#sky'),sf=$('#sky .skyfoot');if(sf)sk.style.setProperty('--fh',sf.offsetHeight+'px')}if(typeof chapMeasure==='function')chapMeasure();
  dx=fit(dc);sx=fit(sc);ex=fit(ec);}
 
 
@@ -1405,6 +1408,47 @@ const GLP=(()=>{const P={on:false};const cv=$('#glp');let gl=null;
   gl.uniform3f(ue.uFrom,A.wick.x,A.wick.y+ws*.55,ws*.55);gl.uniform2f(ue.uTo,A.wick.x,A.wick.y);gl.drawArrays(gl.POINTS,0,NE);};
  P.start=()=>{build().catch(()=>{P.on=false})};
  return P})();
+/* ---------- clouds between chapters: a bank of warm incense smoke rises through the screen, covers the change, and parts ---------- */
+const CLD=(()=>{const P={on:false,update(){},measure(){}};const cv=$('#glc');let gl=null;
+ try{if(!RM)gl=cv.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:false})}catch(e){}
+ if(!gl)return P;
+ const VSs=`#version 300 es
+ in vec2 aP;out vec2 vU;void main(){vU=aP*.5+.5;gl_Position=vec4(aP,0.,1.);}`;
+ const FSs=`#version 300 es
+ precision highp float;in vec2 vU;uniform float uV,uTime,uAsp;uniform vec3 uTint;out vec4 o;
+ float h2(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+ float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
+ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*vn(p);p=mat2(1.6,1.2,-1.2,1.6)*p+7.3;a*=.5;}return v;}
+ void main(){
+  vec2 q=vec2(vU.x*uAsp,vU.y);float t=uTime*.04;
+  vec2 w=vec2(fbm(q*1.6+vec2(t,-t*2.)),fbm(q*1.6+vec2(5.2,1.3)-t));
+  float n=fbm(q*2.2+w*1.4+vec2(0.,-uV*1.6));
+  float n2=fbm(q*5.+w*2.+vec2(3.,-uV*2.5));
+  // the bank: rises from below, fills the screen at the middle of the change, then leaves through the top
+  float y=vU.y+(n-.5)*.62;
+  float lo=mix(-1.5,1.05,uV),hi=lo+1.55;
+  float d=smoothstep(lo,lo+.42,y)*(1.-smoothstep(hi-.42,hi,y));
+  d=clamp(d*1.15,0.,1.);
+  vec3 deep=vec3(.035,.012,.02),body=uTint*.42,lit=mix(uTint,vec3(1.,.82,.58),.55);
+  float sh=smoothstep(.35,.8,n2*.6+n*.6);
+  vec3 c=mix(deep,body,smoothstep(.2,.75,n));c=mix(c,lit,sh*.55*(.4+.6*vU.y));
+  o=vec4(c*d,d);}`;
+ const sh=(t,src)=>{const x=gl.createShader(t);gl.shaderSource(x,src);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x};
+ let pr;try{pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VSs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FSs));gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0}catch(e){return P}
+ const u={};['uV','uTime','uAsp','uTint'].forEach(n=>u[n]=gl.getUniformLocation(pr,n));
+ const va=gl.createVertexArray();gl.bindVertexArray(va);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+ const l=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);
+ // each change of chapter: where it happens on the page, and the colour of light in the smoke
+ const B=[['#moments',[.75,.28,.16]],['#events',[.8,.36,.14]],['.ev-nb',[.82,.16,.22]],['.ev-bh',[.95,.45,.12]],['.ev-rc',[.9,.6,.25]],['#knot',[.6,.22,.55]],['#sapt',[.85,.2,.2]],['#rit',[.8,.3,.4]],['#sky',[.95,.55,.4]]];
+ let Y=[];P.measure=()=>{const sc=.42;cv.width=Math.max(2,Math.round(innerWidth*sc));cv.height=Math.max(2,Math.round(innerHeight*sc));
+  Y=B.map(([sel,c])=>{const e=$(sel);return e?{y:e.getBoundingClientRect().top+scrollY,c}:null}).filter(Boolean)};
+ P.on=true;let live=false;
+ P.update=(y,time)=>{const H=innerHeight,span=H*.7;let v=-1,c=null;
+  for(const k of Y){const r=(y-k.y)/span;if(r>-1&&r<1){v=(r+1)/2;c=k.c;break}}
+  const act=v>0&&v<1;if(act!==live){live=act;cv.classList.toggle('on',act)}if(!act)return;
+  gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(pr);gl.bindVertexArray(va);
+  gl.uniform1f(u.uV,v);gl.uniform1f(u.uTime,time/1000);gl.uniform1f(u.uAsp,innerWidth/innerHeight);gl.uniform3f(u.uTint,c[0],c[1],c[2]);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);};
+ return P})();
 /* ---------- Kaudi Khela ---------- */
 (()=>{const kk=$('#kk');if(!kk)return;const w=$('.kk-water',kk),cw=$('.kk-cowrie',kk),msg=$('.kk-msg',kk),again=$('.kk-again',kk);let K={},busy=false;
  const hide=()=>{const a=Math.random()*6.283,r=Math.sqrt(Math.random())*.36;K={x:.5+Math.cos(a)*r,y:.5+Math.sin(a)*r,n:0,last:null,done:false};cw.style.left=K.x*100+'%';cw.style.top=K.y*100+'%';kk.classList.remove('found');msg.textContent='Tap the water to search'};
@@ -1426,7 +1470,7 @@ const CH=[['Welcome',()=>0],['Blessing',()=>G.bless.top+(G.bless.h-innerHeight)*
  ['Saptapadi',()=>{const k=$('#sapt');return k.getBoundingClientRect().top+scrollY+(k.offsetHeight-innerHeight)*.16}],
  ['Rituals',()=>$('#rit').getBoundingClientRect().top+scrollY],['Finale',()=>document.documentElement.scrollHeight-innerHeight]];
 const chapNav=$('#chap'),chapBtns=CH.map(([n,f])=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',n);
- b.addEventListener('click',()=>{smooth=false;scrollTo({top:f(),behavior:RM?'auto':'smooth'})});chapNav.appendChild(b);return b});
+ b.addEventListener('click',()=>{if(VS.on){VS.fl=0;const y=cl(f(),0,maxS());autoTo(y,Math.min(6000,600+Math.abs(y-scrollY)*.45))}else scrollTo(0,f())});chapNav.appendChild(b);return b});
 let CHY=[],CHM=[0,0];function chapMeasure(){CHY=CH.map(c=>c[1]());const m=$('#moments'),t=m.getBoundingClientRect().top+scrollY;CHM=[t-innerHeight*.3,t+m.offsetHeight-innerHeight*.7]}
 function chapUpdate(y){chapNav.classList.toggle('away',y>CHM[0]&&y<CHM[1]);let k=0;CHY.forEach((v,i)=>{if(y>=v-innerHeight*.6)k=i});chapBtns.forEach((b,i)=>{const on=i===k;if(b._on!==on){b._on=on;b.classList.toggle('on',on);on?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current')}})}
 /* ---------- travelling wheel: one continuous gold path, drawn inside every section behind its content ---------- */
@@ -1497,12 +1541,32 @@ let sT=scrollY,sC=scrollY,smooth=false;
 // cinematic auto-scroll after an interaction; any touch, wheel or key hands control straight back
 let AUTO=null;function autoTo(y,ms){y=cl(y,0,document.documentElement.scrollHeight-innerHeight);smooth=false;if(!ms){scrollTo(0,y);AUTO=null;return}AUTO={a:scrollY,b:y,t0:performance.now(),d:ms}}
 ['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{AUTO=null},{passive:true}));
+const VS={on:!RM,t:scrollY,c:scrollY,v:0,mine:scrollY,tY:0,tT:0,tv:0,fl:0};
+if(VS.on){
+ const push=d=>{if(document.body.classList.contains('loading'))return;VS.t=cl(VS.t+d,0,maxS());};
+ addEventListener('wheel',e=>{if(e.ctrlKey)return;e.preventDefault();VS.fl=0;push(e.deltaY*(e.deltaMode===1?40:e.deltaMode===2?innerHeight:1))},{passive:false});
+ addEventListener('touchstart',e=>{if(e.touches.length>1)return;VS.tY=e.touches[0].clientY;VS.tT=performance.now();VS.tv=0;VS.fl=0},{passive:true});
+ addEventListener('touchmove',e=>{if(e.touches.length>1)return;const y=e.touches[0].clientY,n=performance.now(),d=VS.tY-y,dt=Math.max(1,n-VS.tT);
+  if(DY.holding||KG.dragging)return;e.preventDefault();VS.tv=VS.tv*.6+(d/dt)*.4;VS.tY=y;VS.tT=n;push(d*1.1)},{passive:false});
+ addEventListener('touchend',()=>{if(performance.now()-VS.tT<80)VS.fl=VS.tv*16},{passive:true});
+ addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,textarea'))return;const H=innerHeight,m={ArrowDown:90,ArrowUp:-90,PageDown:H*.85,PageUp:-H*.85,' ':(e.shiftKey?-1:1)*H*.85,Home:-1e9,End:1e9}[e.key];
+  if(m===undefined||(e.key===' '&&e.target.closest&&e.target.closest('button,[role=button]')))return;e.preventDefault();push(m)});
+}
 const maxS=()=>document.documentElement.scrollHeight-innerHeight;
 
 const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.min(100,t-(tPrev||t));tPrev=t;tNow=t;requestAnimationFrame(loop);
  if(!LITE&&!document.hidden&&scrollY!==lastY){if(dt>34)slowN++;else fastN++;if(slowN+fastN>=90){if(slowN>36){LITE=true;document.documentElement.classList.add('lite');DPR=1;try{measure()}catch(e){}}slowN=fastN=0}}lastY=scrollY;
- if(AUTO){const k=cl((t-AUTO.t0)/AUTO.d),y2=lerp(AUTO.a,AUTO.b,eio(k));scrollTo(0,y2);sT=sC=y2;if(k>=1)AUTO=null}
- if(smooth){const k=1-Math.exp(-dt/165);sC+=(sT-sC)*k;if(Math.abs(sT-sC)<.5){sC=sT;smooth=false}scrollTo(0,sC);cvel=(sT-sC)}else cvel*=.9;
+ if(AUTO){const k=cl((t-AUTO.t0)/AUTO.d),y2=lerp(AUTO.a,AUTO.b,eio(k));scrollTo(0,y2);VS.t=VS.c=VS.mine=y2;if(k>=1)AUTO=null}
+ else if(VS.on){
+  // anything that moved the page without us (scrollbar, links, chapter dots): follow it
+  if(Math.abs(scrollY-VS.mine)>2){VS.t=VS.c=scrollY;VS.v=0;VS.fl=0}
+  if(VS.fl){VS.t=cl(VS.t+VS.fl*dt/16,0,maxS());VS.fl*=Math.pow(.94,dt/16);if(Math.abs(VS.fl)<.3)VS.fl=0}
+  const H=innerHeight,lead=H*1.1;VS.t=cl(VS.t,VS.c-lead,VS.c+lead);   // a big flick never queues up more than about a screen
+  const vmax=H*1.15,want=(VS.t-VS.c)*(1-Math.exp(-dt/240))*1000/Math.max(dt,1);   // calm, capped pace: at most ~1.15 screens a second
+  const tv=cl(want,-vmax,vmax);VS.v+=(tv-VS.v)*(1-Math.exp(-dt/120));VS.c+=VS.v*dt/1000;
+  if(Math.abs(VS.t-VS.c)<.4&&Math.abs(VS.v)<4){VS.c=VS.t;VS.v=0}
+  VS.c=cl(VS.c,0,maxS());if(Math.abs(VS.c-scrollY)>=.5)scrollTo(0,VS.c);VS.mine=scrollY;}
+ cvel*=.9;
  if(fine){const kd=1-Math.exp(-dt/22),kr=1-Math.exp(-dt/105);
   RW.dx=(RW.dx??cx)+(cx-(RW.dx??cx))*kd;RW.dy=(RW.dy??cy)+(cy-(RW.dy??cy))*kd;
   const ox=rx,oy=ry;rx+=(cx-rx)*kr;ry+=(cy-ry)*kr;
@@ -1517,7 +1581,7 @@ const HR={};let tPrev=0,slowN=0,fastN=0,lastY=0;function loop(t){const dt=Math.m
   if(hr.bottom>vh-2)c='#1c0308';else if(sr.top<vh&&sr.bottom>vh-2)c='#0a0418';else if(sr.bottom<=vh)c='#07051a';
   if(c!==loop._bg){loop._bg=c;document.documentElement.style.background=c;document.body.style.background=c;themeMeta&&themeMeta.setAttribute('content',c)}}
  if(y<(G.bless?G.bless.top+vh:1e9)){HR.w=hw.getBoundingClientRect();HR.l=hnLines.map(e=>e.getBoundingClientRect())}
- rwUpdate(y);GLP.update(y,t,dt);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
+ rwUpdate(y);GLP.update(y,t,dt);CLD.update(y,t);if(G.bless&&(loop._cy===undefined||Math.abs(loop._cy-y)>40)){loop._cy=y;chapUpdate(y)}
  prog.style.transform=`scaleX(${y/Math.max(1,document.documentElement.scrollHeight-vh)})`;
  for(const s of scenes){const vis=y+vh>s.top-50&&y<s.top+s.len+vh+50;
   if(s.ov){const h=(s.top-y)>1||(s.prev&&s.prev.p<.99&&s.prev.t>=1);if(h!==s.hid){s.hid=h;s.st.style.visibility=h?'hidden':''}}
